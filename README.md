@@ -1,66 +1,56 @@
-# Data Fusion & Linear Kalman Filter
+# Data Fusion and Linear Kalman Filter
 
-A project exploring data fusion techniques and linear Kalman filtering through dynamic system simulation.
+Simulation and state estimation of dynamic systems using continuous-time and discrete-time models, with an emphasis on linear Kalman filtering and data fusion.
 
----
-
-## 📁 Project Structure
+## Project Structure
 
 ```
 .
-├── ContinousTimeSimulation.ipynb   # Mass-spring-damper system simulation (continuous & discrete time)
+├── ContinousTimeSimulation.ipynb   # Mass-spring-damper system: continuous and discrete-time simulation
 ├── .gitignore
 ├── LICENSE
 └── README.md
 ```
 
----
+## Overview
 
-## 📖 Overview
+Topics covered in this repository:
 
-This repository contains Jupyter notebooks covering:
+- Dynamic system modeling: second-order mass-spring-damper systems
+- Continuous-time simulation via numerical integration (Runge-Kutta and related methods)
+- Discrete-time simulation using state-space discretization and time-stepping
+- Linear Kalman filtering for state estimation in noisy dynamic systems
+- Data fusion: combining sensor measurements with model-based predictions
 
-- **Dynamic system modeling** — second-order mass-spring-damper systems
-- **Continuous-time simulation** — solving ODEs via numerical integration (e.g., Runge-Kutta)
-- **Discrete-time simulation** — state-space discretization and time-stepping
-- **Linear Kalman filtering** — state estimation for noisy dynamic systems
-- **Data fusion** — combining sensor measurements with model predictions
+### Mass-Spring-Damper System
 
-### Mass–Spring–Damper System
-
-The governing differential equation is:
+The governing differential equation:
 
 $$
 m\ddot{x}(t) + b\dot{x}(t) + kx(t) = f(t)
 $$
 
-Converted to state-space form for simulation and filtering.
+where $m$ is mass, $b$ is the damping coefficient, $k$ is spring stiffness, and $f(t)$ is the applied force. The second-order equation is reduced to a first-order state-space representation and solved both analytically and numerically.
 
----
-
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 
-- **Python** 3.8+
-- **VS Code** with the Jupyter extension, or Jupyter Notebook
+- Python 3.8 or later
+- Jupyter Notebook, or VS Code with the Jupyter extension
 
-### Installation
+### Dependencies
 
 ```bash
 pip install numpy scipy matplotlib jupyter
 ```
 
-### Usage
-
-Open the notebook in VS Code or Jupyter:
+### Running the Notebook
 
 ```bash
 jupyter notebook ContinousTimeSimulation.ipynb
 ```
 
----
+## License
 
-## 📄 License
-
-This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
+This project is distributed under the MIT License. See [LICENSE](LICENSE) for details.
