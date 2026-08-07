@@ -18,7 +18,7 @@ Simulation and state estimation of dynamic systems using continuous-time and dis
 Topics covered in this repository:
 
 - Dynamic system modeling: second-order mass-spring-damper systems
-- Continuous-time simulation via numerical integration (Runge-Kutta and related methods)
+- Continuous-time simulation using Forward Euler integration, with comparison to the exact discrete-time solution
 - Discrete-time simulation using state-space discretization and time-stepping
 - Linear Kalman filtering for state estimation in noisy dynamic systems
 - Data fusion: combining sensor measurements with model-based predictions
