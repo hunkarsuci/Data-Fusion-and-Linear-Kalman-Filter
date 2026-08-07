@@ -6,7 +6,8 @@ Simulation and state estimation of dynamic systems using continuous-time and dis
 
 ```
 .
-├── ContinousTimeSimulation.ipynb   # Mass-spring-damper system: continuous and discrete-time simulation
+├── ContinousTimeSimulation.ipynb   # Continuous-time mass-spring-damper simulation
+├── DiscreteTimeSimulation.ipynb    # Discrete-time dynamic system simulation
 ├── .gitignore
 ├── LICENSE
 └── README.md
@@ -21,6 +22,9 @@ Topics covered in this repository:
 - Discrete-time simulation using state-space discretization and time-stepping
 - Linear Kalman filtering for state estimation in noisy dynamic systems
 - Data fusion: combining sensor measurements with model-based predictions
+
+Both the continuous-time and discrete-time dynamic system simulations are included as
+completed exercises in their respective notebooks.
 
 ### Mass-Spring-Damper System
 
@@ -47,8 +51,16 @@ pip install numpy scipy matplotlib jupyter
 
 ### Running the Notebook
 
+Continuous-time simulation:
+
 ```bash
 jupyter notebook ContinousTimeSimulation.ipynb
+```
+
+Discrete-time simulation:
+
+```bash
+jupyter notebook DiscreteTimeSimulation.ipynb
 ```
 
 ## License
