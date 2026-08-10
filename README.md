@@ -1,68 +1,89 @@
 # Data Fusion and Linear Kalman Filter
 
-Simulation and state estimation of dynamic systems using continuous-time and discrete-time models, with an emphasis on linear Kalman filtering and data fusion.
+Examples and exercises for modeling dynamic systems, simulating state-space models, and estimating unknown quantities from measurements.
 
-## Project Structure
+## Contents
 
-```
-.
-├── ContinousTimeSimulation.ipynb   # Continuous-time mass-spring-damper simulation
-├── DiscreteTimeSimulation.ipynb    # Discrete-time dynamic system simulation
-├── .gitignore
-├── LICENSE
-└── README.md
-```
+| Notebook | Description |
+| --- | --- |
+| [`ContinousTimeSimulation.ipynb`](ContinousTimeSimulation.ipynb) | Forward Euler simulation of a continuous-time mass-spring-damper system, compared with its exact response. |
+| [`DiscreteTimeSimulation.ipynb`](DiscreteTimeSimulation.ipynb) | Exact discretization and simulation of the same mass-spring-damper model. |
+| [`LeastSquareEstimation.ipynb`](LeastSquareEstimation.ipynb) | Ordinary least-squares and weighted least-squares estimation using measurement covariance. |
 
-## Overview
+## Topics
 
-Topics covered in this repository:
+- First- and second-order dynamic system modeling
+- Continuous-time and discrete-time state-space representations
+- Forward Euler integration and exact matrix-exponential discretization
+- Linear state estimation and data fusion concepts
+- Ordinary least squares (LSE) and weighted least squares (WLS)
+- Measurement uncertainty and covariance-based weighting
 
-- Dynamic system modeling: second-order mass-spring-damper systems
-- Continuous-time simulation using Forward Euler integration, with comparison to the exact discrete-time solution
-- Discrete-time simulation using state-space discretization and time-stepping
-- Linear Kalman filtering for state estimation in noisy dynamic systems
-- Data fusion: combining sensor measurements with model-based predictions
+## Model example
 
-Both the continuous-time and discrete-time dynamic system simulations are included as
-completed exercises in their respective notebooks.
-
-### Mass-Spring-Damper System
-
-The governing differential equation:
+The simulation notebooks use a mass-spring-damper system:
 
 $$
 m\ddot{x}(t) + b\dot{x}(t) + kx(t) = f(t)
 $$
 
-where $m$ is mass, $b$ is the damping coefficient, $k$ is spring stiffness, and $f(t)$ is the applied force. The second-order equation is reduced to a first-order state-space representation and solved both analytically and numerically.
+The second-order equation is expressed as a first-order state-space model with position and velocity as the state variables. The continuous-time model is then simulated numerically and converted to an equivalent discrete-time model.
 
-## Getting Started
+The estimation notebook uses the linear measurement model
 
-### Prerequisites
+$$
+\mathbf{y} = \mathbf{H}\mathbf{x} + \mathbf{v}
+$$
+
+For weighted least squares, the measurement covariance matrix \(\mathbf{R}\) determines the relative influence of each measurement:
+
+$$
+\hat{\mathbf{x}} = (\mathbf{H}^T\mathbf{R}^{-1}\mathbf{H})^{-1}\mathbf{H}^T\mathbf{R}^{-1}\mathbf{y}
+$$
+
+## Getting started
+
+### Requirements
 
 - Python 3.8 or later
-- Jupyter Notebook, or VS Code with the Jupyter extension
+- Jupyter Notebook or JupyterLab, or VS Code with the Jupyter extension
 
-### Dependencies
+Install the Python dependencies with:
 
 ```bash
-pip install numpy scipy matplotlib jupyter
+python -m pip install numpy scipy matplotlib jupyter
 ```
 
-### Running the Notebook
+### Run the notebooks
 
-Continuous-time simulation:
+From the repository root, launch Jupyter:
+
+```bash
+jupyter notebook
+```
+
+Then open any notebook listed above. Individual notebooks can also be launched directly:
 
 ```bash
 jupyter notebook ContinousTimeSimulation.ipynb
+jupyter notebook DiscreteTimeSimulation.ipynb
+jupyter notebook LeastSquareEstimation.ipynb
 ```
 
-Discrete-time simulation:
+Run the notebook cells from top to bottom so that imports, model parameters, calculations, and plots are initialized in order.
 
-```bash
-jupyter notebook DiscreteTimeSimulation.ipynb
+## Project structure
+
+```text
+.
+├── ContinousTimeSimulation.ipynb
+├── DiscreteTimeSimulation.ipynb
+├── LeastSquareEstimation.ipynb
+├── .gitignore
+├── LICENSE
+└── README.md
 ```
 
 ## License
 
-This project is distributed under the MIT License. See [LICENSE](LICENSE) for details.
+This project is distributed under the MIT License. See [`LICENSE`](LICENSE) for details.
