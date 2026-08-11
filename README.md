@@ -29,113 +29,171 @@ Examples and exercises for modeling dynamic systems, simulating state-space mode
 
 ## Model example
 
-The simulation notebooks use a mass-spring-damper system:
+The simulation notebooks use a mass-spring-damper system to introduce continuous-time and discrete-time state-space modeling. The Kalman-filter implementation below focuses on vehicle state estimation and its prediction/measurement cycle.
+
+## Linear Kalman-filter state estimation
+
+The implementation estimates the state of a vehicle moving in a two-dimensional plane. It is a **linear** Kalman filter: both the state-transition model and the measurement model are linear. The filter combines a physics-based prediction with noisy sensor measurements while propagating the uncertainty of both.
+
+### 1. State and system model
+
+The state at sample \(k\) is the position and velocity in the two coordinate directions:
 
 $$
-m\ddot{x}(t) + b\dot{x}(t) + kx(t) = f(t)
+\mathbf{x}_k =
+\begin{bmatrix}p_{x,k}\\p_{y,k}\\v_{x,k}\\v_{y,k}\end{bmatrix}
+\in \mathbb{R}^{4}
 $$
 
-The second-order equation is expressed as a first-order state-space model with position and velocity as the state variables. The continuous-time model is then simulated numerically and converted to an equivalent discrete-time model.
-
-The estimation notebook uses the linear measurement model
+The discrete-time stochastic state model is
 
 $$
-\mathbf{y} = \mathbf{H}\mathbf{x} + \mathbf{v}
+\mathbf{x}_k = \mathbf{F}_k\mathbf{x}_{k-1} + \mathbf{w}_k
 $$
 
-For weighted least squares, the measurement covariance matrix \(\mathbf{R}\) determines the relative influence of each measurement:
+where \(\mathbf{w}_k\) is zero-mean process noise. For the constant-velocity assumption and sample time \(\Delta t\),
 
 $$
-\hat{\mathbf{x}} = (\mathbf{H}^T\mathbf{R}^{-1}\mathbf{H})^{-1}\mathbf{H}^T\mathbf{R}^{-1}\mathbf{y}
-$$
-
-## Extended Kalman-filter mathematics and physics
-
-The implementation estimates the motion of a vehicle moving in a two-dimensional plane. It assumes a constant-velocity model over one sample interval, while allowing unknown acceleration to perturb that model.
-
-### Physical state model
-
-The state vector contains position and velocity in the horizontal and vertical directions:
-
-$$
-\mathbf{x}_k = \begin{bmatrix}p_x & p_y & v_x & v_y\end{bmatrix}^T
-$$
-
-For a time step \(\Delta t\), the kinematic equations are
-
-$$
-p_{x,k+1}=p_{x,k}+\Delta t\,v_{x,k}, \qquad
-p_{y,k+1}=p_{y,k}+\Delta t\,v_{y,k}
-$$
-
-$$
-v_{x,k+1}=v_{x,k}, \qquad v_{y,k+1}=v_{y,k}
-$$
-
-In matrix form, the deterministic constant-velocity model is
-
-$$
-\mathbf{x}_{k+1}=\mathbf{F}\mathbf{x}_k+\mathbf{w}_k, \qquad
-\mathbf{F}=\begin{bmatrix}
+\mathbf{F}_k =
+\begin{bmatrix}
 1&0&\Delta t&0\\
 0&1&0&\Delta t\\
 0&0&1&0\\
 0&0&0&1
-\end{bmatrix}
+\end{bmatrix}.
 $$
 
-The process-noise vector \(\mathbf{w}_k\) represents unmodelled acceleration, such as changes in throttle, steering, friction, or vehicle motion. It is assumed to have zero mean and covariance \(\mathbf{Q}\). A continuous white-acceleration model uses
+This represents the kinematic equations \(p_{x,k}=p_{x,k-1}+\Delta t\,v_{x,k-1}\), \(p_{y,k}=p_{y,k-1}+\Delta t\,v_{y,k-1}\), with velocity held constant between samples. The process noise accounts for acceleration and other effects not represented by this simplified model.
+
+### 2. State estimate and covariance
+
+At each time step, the filter maintains:
 
 $$
-\mathbf{G}=\begin{bmatrix}\frac{1}{2}\Delta t^2&0\\0&\frac{1}{2}\Delta t^2\\\Delta t&0\\0&\Delta t\end{bmatrix}, \qquad
-\mathbf{Q}=\sigma_a^2\mathbf{G}\mathbf{G}^T
+\hat{\mathbf{x}}_k = \mathbb{E}[\mathbf{x}_k\mid\mathbf{z}_{1:k}],
+\qquad
+\mathbf{P}_k = \operatorname{Cov}(\mathbf{x}_k-\hat{\mathbf{x}}_k)
 $$
 
-where \(\sigma_a\) is the acceleration standard deviation. The implementation uses the same position and velocity scaling in a diagonal approximation of \(\mathbf{Q}\); increasing `accel_std` makes the filter adapt more quickly to maneuvers.
+Here \(\hat{\mathbf{x}}_k\) is the best linear-Gaussian estimate after using measurements through \(k\), and \(\mathbf{P}_k\in\mathbb{R}^{4\times4}\) is its error covariance. The diagonal entries are the variances of \(p_x,p_y,v_x,v_y\); off-diagonal entries describe correlations between state errors.
 
-### Measurement model
-
-The tracker receives noisy position measurements, not direct velocity measurements:
+The process-noise covariance is
 
 $$
-\mathbf{z}_k=\mathbf{H}\mathbf{x}_k+\mathbf{v}_k, \qquad
-\mathbf{H}=\begin{bmatrix}1&0&0&0\\0&1&0&0\end{bmatrix}
+\mathbf{Q}_k=\operatorname{Cov}(\mathbf{w}_k).
 $$
 
-Here \(\mathbf{v}_k\) is zero-mean measurement noise with covariance \(\mathbf{R}\). For independent position sensors with standard deviation \(\sigma_m\), the code sets \(\mathbf{R}=\operatorname{diag}(\sigma_m^2,\sigma_m^2)\). Larger measurement uncertainty causes the filter to trust its motion prediction more; smaller uncertainty causes it to follow measurements more closely.
+For a continuous white-acceleration model, a physically derived covariance is
 
-### Prediction and correction cycle
+$$
+\mathbf{G}=\begin{bmatrix}
+\frac{1}{2}\Delta t^2&0\\
+0&\frac{1}{2}\Delta t^2\\
+\Delta t&0\\
+0&\Delta t
+\end{bmatrix},
+\qquad
+\mathbf{Q}_k=\sigma_a^2\mathbf{G}\mathbf{G}^T,
+$$
 
-The filter stores an estimated state \(\hat{\mathbf{x}}\) and covariance \(\mathbf{P}\), where \(\mathbf{P}\) describes uncertainty in position, velocity, and their correlations.
+where \(\sigma_a\) is the acceleration standard deviation. The implementation uses a diagonal tuning approximation based on the same \(\Delta t^2/2\) position and \(\Delta t\) velocity scaling. Increasing `accel_std` increases predicted uncertainty and allows the estimate to respond more quickly to maneuvers.
 
-1. **Prediction:**
+### 3. Measurement model
+
+The sensor provides a noisy measurement of position only:
+
+$$
+\mathbf{z}_k = \mathbf{H}_k\mathbf{x}_k + \mathbf{v}_k,
+\qquad
+\mathbf{z}_k=\begin{bmatrix}z_{x,k}\\z_{y,k}\end{bmatrix}
+$$
+
+The measurement matrix selects position from the state:
+
+$$
+\mathbf{H}_k=\begin{bmatrix}1&0&0&0\\0&1&0&0\end{bmatrix}.
+$$
+
+The measurement noise \(\mathbf{v}_k\) is assumed zero mean and independent of the process noise, with covariance
+
+$$
+\mathbf{R}_k=\operatorname{Cov}(\mathbf{v}_k)
+ =\begin{bmatrix}\sigma_m^2&0\\0&\sigma_m^2\end{bmatrix}.
+$$
+
+`meas_std` is \(\sigma_m\). A larger \(\mathbf{R}_k\) means less confidence in the sensor; a larger predicted covariance means less confidence in the motion model.
+
+### 4. Prediction and covariance propagation
+
+Before receiving the measurement at time \(k\), the filter propagates the previous posterior estimate forward:
 
    $$
-   \hat{\mathbf{x}}^-_k=\mathbf{F}\hat{\mathbf{x}}_{k-1}, \qquad
-   \mathbf{P}^-_k=\mathbf{F}\mathbf{P}_{k-1}\mathbf{F}^T+\mathbf{Q}
+   \hat{\mathbf{x}}^-_k=\mathbf{F}_k\hat{\mathbf{x}}_{k-1}
    $$
 
-2. **Innovation:** compare the sensor reading with the predicted measurement:
+The superscript \((-\)) denotes the prior, or predicted, quantity. The predicted state is the physical model applied to the previous estimate. The covariance propagation follows from the predicted error
+\(\mathbf{e}^-_k=\mathbf{x}_k-\hat{\mathbf{x}}^-_k=\mathbf{F}_k\mathbf{e}_{k-1}+\mathbf{w}_k\):
 
    $$
-   \mathbf{y}_k=\mathbf{z}_k-\mathbf{H}\hat{\mathbf{x}}^-_k, \qquad
-   \mathbf{S}_k=\mathbf{H}\mathbf{P}^-_k\mathbf{H}^T+\mathbf{R}
+   \mathbf{P}^-_k=\mathbf{F}_k\mathbf{P}_{k-1}\mathbf{F}_k^T+\mathbf{Q}_k.
    $$
 
-3. **Measurement update:** compute the Kalman gain and combine prediction with measurement:
+The term \(\mathbf{F}_k\mathbf{P}_{k-1}\mathbf{F}_k^T\) transports existing uncertainty through the dynamics. The added \(\mathbf{Q}_k\) represents new uncertainty introduced by unmodelled acceleration.
+
+### 5. Measurement prediction and innovation
+
+The predicted measurement is
+
+$$
+\hat{\mathbf{z}}_k=\mathbf{H}_k\hat{\mathbf{x}}^-_k.
+$$
+
+The innovation, also called the measurement residual, is the difference between the actual and predicted measurement:
+
+$$
+\boldsymbol{\nu}_k=\mathbf{z}_k-\hat{\mathbf{z}}_k
+ =\mathbf{z}_k-\mathbf{H}_k\hat{\mathbf{x}}^-_k.
+$$
+
+Its covariance is
+
+$$
+\mathbf{S}_k=\mathbf{H}_k\mathbf{P}^-_k\mathbf{H}_k^T+\mathbf{R}_k.
+$$
+
+This combines uncertainty in the predicted position with sensor uncertainty. In the implementation, \(\boldsymbol{\nu}_k\) is stored as `innovation` and \(\mathbf{S}_k\) as `innovation_covariance`.
+
+### 6. Measurement update and state estimation
+
+The Kalman gain weights the innovation according to the relative uncertainty of the prediction and measurement:
 
    $$
-   \mathbf{K}_k=\mathbf{P}^-_k\mathbf{H}^T\mathbf{S}_k^{-1}
+   \mathbf{K}_k=\mathbf{P}^-_k\mathbf{H}_k^T\mathbf{S}_k^{-1}.
    $$
 
+The posterior state estimate is obtained by correcting the predicted state:
+
    $$
-   \hat{\mathbf{x}}_k=\hat{\mathbf{x}}^-_k+\mathbf{K}_k\mathbf{y}_k, \qquad
-   \mathbf{P}_k=(\mathbf{I}-\mathbf{K}_k\mathbf{H})\mathbf{P}^-_k
+   \hat{\mathbf{x}}_k=\hat{\mathbf{x}}^-_k+\mathbf{K}_k\boldsymbol{\nu}_k.
    $$
 
-The Kalman gain is the balance between model uncertainty and sensor uncertainty. The implementation records \(\mathbf{y}_k\) as `innovation` and \(\mathbf{S}_k\) as `innovation_covariance`, which are useful for diagnosing unexpectedly large or inconsistent measurements.
+Because the measurement contains only position, the update also improves velocity through the position-velocity correlations in \(\mathbf{P}^-_k\). This is how the filter estimates velocity without a direct velocity sensor.
 
-The equations and parameter meanings are also documented in [`LinearKalmanFilter_Implementation/README.md`](LinearKalmanFilter_Implementation/README.md).
+The posterior covariance is updated as
+
+$$
+\mathbf{P}_k=(\mathbf{I}-\mathbf{K}_k\mathbf{H}_k)\mathbf{P}^-_k.
+$$
+
+This reduces uncertainty in directions informed by the measurement. For numerical implementations, the equivalent Joseph form is often preferred:
+
+$$
+\mathbf{P}_k=(\mathbf{I}-\mathbf{K}_k\mathbf{H}_k)\mathbf{P}^-_k(\mathbf{I}-\mathbf{K}_k\mathbf{H}_k)^T+\mathbf{K}_k\mathbf{R}_k\mathbf{K}_k^T.
+$$
+
+The repository implementation uses the simplified covariance equation above.
+
+The same state-estimation model is documented in [`LinearKalmanFilter_Implementation/README.md`](LinearKalmanFilter_Implementation/README.md).
 
 ## Getting started
 
