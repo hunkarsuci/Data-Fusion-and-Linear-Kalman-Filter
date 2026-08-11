@@ -9,6 +9,7 @@ Examples and exercises for modeling dynamic systems, simulating state-space mode
 | [`ContinousTimeSimulation.ipynb`](ContinousTimeSimulation.ipynb) | Forward Euler simulation of a continuous-time mass-spring-damper system, compared with its exact response. |
 | [`DiscreteTimeSimulation.ipynb`](DiscreteTimeSimulation.ipynb) | Exact discretization and simulation of the same mass-spring-damper model. |
 | [`LeastSquareEstimation.ipynb`](LeastSquareEstimation.ipynb) | Ordinary least-squares and weighted least-squares estimation using measurement covariance. |
+| [`LinearKalmanFilter_Implementation/`](LinearKalmanFilter_Implementation/) | Python implementation of a linear Kalman filter for 2D vehicle tracking, including prediction, measurement update, and assignment examples. |
 
 ## Topics
 
@@ -72,6 +73,22 @@ jupyter notebook LeastSquareEstimation.ipynb
 
 Run the notebook cells from top to bottom so that imports, model parameters, calculations, and plots are initialized in order.
 
+### Run the Kalman-filter implementation
+
+The implementation is contained in `LinearKalmanFilter_Implementation/`. The reusable filter and tracking components are in the `kfsims/` package:
+
+- `kfmodels.py` contains the base Kalman-filter interface and state accessors.
+- `kftracker2d.py` implements the 2D constant-velocity Kalman-filter model.
+- `tracker2d.py` and `vehiclemodel2d.py` provide tracking and vehicle-model utilities.
+- The `assignment1_*.py` files demonstrate filter initialization, prediction, and update steps.
+
+From the implementation directory, run an example with:
+
+```bash
+cd LinearKalmanFilter_Implementation
+python assignment1_answer.py
+```
+
 ## Project structure
 
 ```text
@@ -79,6 +96,13 @@ Run the notebook cells from top to bottom so that imports, model parameters, cal
 ├── ContinousTimeSimulation.ipynb
 ├── DiscreteTimeSimulation.ipynb
 ├── LeastSquareEstimation.ipynb
+├── LinearKalmanFilter_Implementation/
+│   ├── assignment1_*.py
+│   └── kfsims/
+│       ├── kfmodels.py
+│       ├── kftracker2d.py
+│       ├── tracker2d.py
+│       └── vehiclemodel2d.py
 ├── .gitignore
 ├── LICENSE
 └── README.md
