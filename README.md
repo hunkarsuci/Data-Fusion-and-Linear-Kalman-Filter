@@ -7,193 +7,242 @@
 [![SciPy](https://img.shields.io/badge/SciPy-supported-8CAAE6?logo=scipy&logoColor=white)](https://scipy.org/)
 [![GitHub last commit](https://img.shields.io/github/last-commit/hunkarsuci/Data-Fusion-and-Linear-Kalman-Filter)](https://github.com/hunkarsuci/Data-Fusion-and-Linear-Kalman-Filter/commits/master)
 
-Examples and exercises for modeling dynamic systems, simulating state-space models, and estimating unknown quantities from measurements.
+Examples and implementations for dynamic-system modeling, state-space simulation, data fusion, and linear state estimation.
 
 ## Contents
 
-| Notebook | Description |
+| Resource | Description |
 | --- | --- |
 | [`ContinousTimeSimulation.ipynb`](ContinousTimeSimulation.ipynb) | Forward Euler simulation of a continuous-time mass-spring-damper system, compared with its exact response. |
 | [`DiscreteTimeSimulation.ipynb`](DiscreteTimeSimulation.ipynb) | Exact discretization and simulation of the same mass-spring-damper model. |
-| [`LeastSquareEstimation.ipynb`](LeastSquareEstimation.ipynb) | Ordinary least-squares and weighted least-squares estimation using measurement covariance. |
-| [`LinearKalmanFilter_Implementation/`](LinearKalmanFilter_Implementation/) | Python implementation of a linear Kalman filter for 2D vehicle tracking, including prediction, measurement update, and assignment examples. |
+| [`LeastSquareEstimation.ipynb`](LeastSquareEstimation.ipynb) | Ordinary and weighted least-squares estimation using measurement covariance. |
+| [`LinearKalmanFilter_Implementation/`](LinearKalmanFilter_Implementation/) | Linear Kalman filter for two-dimensional vehicle tracking. |
 
 ## Topics
 
-- First- and second-order dynamic system modeling
-- Continuous-time and discrete-time state-space representations
-- Forward Euler integration and exact matrix-exponential discretization
-- Linear state estimation and data fusion concepts
-- Ordinary least squares (LSE) and weighted least squares (WLS)
-- Measurement uncertainty and covariance-based weighting
+- Continuous-time and discrete-time state-space models
+- Numerical simulation and exact discretization
+- Least-squares and weighted least-squares estimation
+- Linear Kalman filtering and data fusion
+- State prediction and covariance propagation
+- Measurement updates and uncertainty weighting
 
-## Model example
+## Linear Kalman Filter state estimation
 
-The simulation notebooks use a mass-spring-damper system to introduce continuous-time and discrete-time state-space modeling. The Kalman-filter implementation below focuses on vehicle state estimation and its prediction/measurement cycle.
+The implementation estimates a vehicle's two-dimensional position and velocity from noisy position measurements. It uses a linear dynamic model and a linear measurement model. At every time step, the filter predicts the state and its uncertainty, then corrects both using the new measurement.
 
-## Linear Kalman-filter state estimation
+### 1. Dynamic state model
 
-The implementation estimates the state of a vehicle moving in a two-dimensional plane. It is a **linear** Kalman filter: both the state-transition model and the measurement model are linear. The filter combines a physics-based prediction with noisy sensor measurements while propagating the uncertainty of both.
+The state vector is
 
-### 1. State and system model
-
-The state at sample \(k\) is the position and velocity in the two coordinate directions:
-
-$$
+```math
 \mathbf{x}_k =
-\begin{bmatrix}p_{x,k}\\p_{y,k}\\v_{x,k}\\v_{y,k}\end{bmatrix}
-\in \mathbb{R}^{4}
-$$
+\begin{bmatrix}
+p_{x,k} \\
+p_{y,k} \\
+v_{x,k} \\
+v_{y,k}
+\end{bmatrix},
+```
 
-The discrete-time stochastic state model is
+where `p_x` and `p_y` are positions and `v_x` and `v_y` are velocities. The stochastic discrete-time model is
 
-$$
-\mathbf{x}_k = \mathbf{F}_k\mathbf{x}_{k-1} + \mathbf{w}_k
-$$
+```math
+\mathbf{x}_k = \mathbf{F}_k\mathbf{x}_{k-1} + \mathbf{w}_k,
+\qquad
+\mathbf{w}_k \sim \mathcal{N}(\mathbf{0},\mathbf{Q}_k).
+```
 
-where \(\mathbf{w}_k\) is zero-mean process noise. For the constant-velocity assumption and sample time \(\Delta t\),
+For a constant-velocity model with sampling interval `dt`,
 
-$$
+```math
 \mathbf{F}_k =
 \begin{bmatrix}
-1&0&\Delta t&0\\
-0&1&0&\Delta t\\
-0&0&1&0\\
-0&0&0&1
+1 & 0 & \Delta t & 0 \\
+0 & 1 & 0 & \Delta t \\
+0 & 0 & 1 & 0 \\
+0 & 0 & 0 & 1
 \end{bmatrix}.
-$$
+```
 
-This represents the kinematic equations \(p_{x,k}=p_{x,k-1}+\Delta t\,v_{x,k-1}\), \(p_{y,k}=p_{y,k-1}+\Delta t\,v_{y,k-1}\), with velocity held constant between samples. The process noise accounts for acceleration and other effects not represented by this simplified model.
+The process noise `w_k` represents acceleration and other motion that the constant-velocity model does not predict. Its covariance is `Q_k`.
 
-### 2. State estimate and covariance
+For independent continuous white acceleration in the `x` and `y` directions, with spectral density `q_a`, the standard discrete process-noise covariance is
 
-At each time step, the filter maintains:
+```math
+\mathbf{Q}_k = q_a
+\begin{bmatrix}
+\frac{\Delta t^3}{3} & 0 & \frac{\Delta t^2}{2} & 0 \\
+0 & \frac{\Delta t^3}{3} & 0 & \frac{\Delta t^2}{2} \\
+\frac{\Delta t^2}{2} & 0 & \Delta t & 0 \\
+0 & \frac{\Delta t^2}{2} & 0 & \Delta t
+\end{bmatrix}.
+```
 
-$$
-\hat{\mathbf{x}}_k = \mathbb{E}[\mathbf{x}_k\mid\mathbf{z}_{1:k}],
-\qquad
-\mathbf{P}_k = \mathrm{Cov}(\mathbf{x}_k-\hat{\mathbf{x}}_k)
-$$
+The current Python implementation uses a simplified diagonal tuning matrix:
 
-Here \(\hat{\mathbf{x}}_k\) is the best linear-Gaussian estimate after using measurements through \(k\), and \(\mathbf{P}_k\in\mathbb{R}^{4\times4}\) is its error covariance. The diagonal entries are the variances of \(p_x,p_y,v_x,v_y\); off-diagonal entries describe correlations between state errors.
+```math
+\mathbf{Q}_{\mathrm{code}} = \sigma_a^2
+\mathrm{diag}\!\left(
+\frac{\Delta t^2}{2},
+\frac{\Delta t^2}{2},
+\Delta t,
+\Delta t
+\right).
+```
 
-The process-noise covariance is
+Here, `accel_std` supplies the tuning value `sigma_a`. Increasing it makes the filter less confident in constant-velocity motion and more responsive to maneuvers.
 
-$$
-\mathbf{Q}_k=\mathrm{Cov}(\mathbf{w}_k).
-$$
+### 2. Measurement model
 
-For a continuous white-acceleration model, a physically derived covariance is
+The sensor measures position but not velocity:
 
-$$
-\mathbf{G}=\begin{bmatrix}
-\frac{1}{2}\Delta t^2&0\\
-0&\frac{1}{2}\Delta t^2\\
-\Delta t&0\\
-0&\Delta t
-\end{bmatrix},
-\qquad
-\mathbf{Q}_k=\sigma_a^2\mathbf{G}\mathbf{G}^T,
-$$
-
-where \(\sigma_a\) is the acceleration standard deviation. The implementation uses a diagonal tuning approximation based on the same \(\Delta t^2/2\) position and \(\Delta t\) velocity scaling. Increasing `accel_std` increases predicted uncertainty and allows the estimate to respond more quickly to maneuvers.
-
-### 3. Measurement model
-
-The sensor provides a noisy measurement of position only:
-
-$$
+```math
 \mathbf{z}_k = \mathbf{H}_k\mathbf{x}_k + \mathbf{v}_k,
 \qquad
-\mathbf{z}_k=\begin{bmatrix}z_{x,k}\\z_{y,k}\end{bmatrix}
-$$
+\mathbf{v}_k \sim \mathcal{N}(\mathbf{0},\mathbf{R}_k),
+```
 
-The measurement matrix selects position from the state:
+with
 
-$$
-\mathbf{H}_k=\begin{bmatrix}1&0&0&0\\0&1&0&0\end{bmatrix}.
-$$
+```math
+\mathbf{z}_k =
+\begin{bmatrix}
+z_{x,k} \\
+z_{y,k}
+\end{bmatrix},
+\qquad
+\mathbf{H}_k =
+\begin{bmatrix}
+1 & 0 & 0 & 0 \\
+0 & 1 & 0 & 0
+\end{bmatrix}.
+```
 
-The measurement noise \(\mathbf{v}_k\) is assumed zero mean and independent of the process noise, with covariance
+For independent measurement errors with standard deviation `sigma_m`,
 
-$$
-\mathbf{R}_k=\mathrm{Cov}(\mathbf{v}_k)
- =\begin{bmatrix}\sigma_m^2&0\\0&\sigma_m^2\end{bmatrix}.
-$$
+```math
+\mathbf{R}_k =
+\begin{bmatrix}
+\sigma_m^2 & 0 \\
+0 & \sigma_m^2
+\end{bmatrix}.
+```
 
-`meas_std` is \(\sigma_m\). A larger \(\mathbf{R}_k\) means less confidence in the sensor; a larger predicted covariance means less confidence in the motion model.
+The code parameter `meas_std` supplies `sigma_m`. A larger `R_k` gives the sensor less influence; a smaller `R_k` gives it more influence.
+
+### 3. Prior and posterior estimates
+
+The notation distinguishes the estimate before and after the measurement at time `k`:
+
+```math
+\hat{\mathbf{x}}_{k\mid k-1}
+= \mathbb{E}[\mathbf{x}_k\mid\mathbf{z}_{1:k-1}]
+```
+
+is the prior (predicted) estimate, while
+
+```math
+\hat{\mathbf{x}}_{k\mid k}
+= \mathbb{E}[\mathbf{x}_k\mid\mathbf{z}_{1:k}]
+```
+
+is the posterior (corrected) estimate. Their error covariances are
+
+```math
+\mathbf{P}_{k\mid j}
+= \mathbb{E}\!\left[
+(\mathbf{x}_k-\hat{\mathbf{x}}_{k\mid j})
+(\mathbf{x}_k-\hat{\mathbf{x}}_{k\mid j})^T
+\mid\mathbf{z}_{1:j}
+\right],
+\qquad j\in\{k-1,k\}.
+```
+
+The diagonal entries of `P` are the state-error variances. Its off-diagonal entries represent correlations between errors in position and velocity.
 
 ### 4. Prediction and covariance propagation
 
-Before receiving the measurement at time \(k\), the filter propagates the previous posterior estimate forward:
+The prediction step propagates the previous posterior estimate through the dynamic model:
 
-$$
-\hat{\mathbf{x}}^-_k=\mathbf{F}_k\hat{\mathbf{x}}_{k-1}
-$$
+```math
+\hat{\mathbf{x}}_{k\mid k-1}
+= \mathbf{F}_k\hat{\mathbf{x}}_{k-1\mid k-1}.
+```
 
-The superscript \((-\)) denotes the prior, or predicted, quantity. The predicted state is the physical model applied to the previous estimate. The covariance propagation follows from the predicted error
-\(\mathbf{e}^-_k=\mathbf{x}_k-\hat{\mathbf{x}}^-_k=\mathbf{F}_k\mathbf{e}_{k-1}+\mathbf{w}_k\):
+The prior covariance is propagated as
 
-$$
-\mathbf{P}^-_k=\mathbf{F}_k\mathbf{P}_{k-1}\mathbf{F}_k^T+\mathbf{Q}_k.
-$$
+```math
+\mathbf{P}_{k\mid k-1}
+= \mathbf{F}_k\mathbf{P}_{k-1\mid k-1}\mathbf{F}_k^T
++ \mathbf{Q}_k.
+```
 
-The term \(\mathbf{F}_k\mathbf{P}_{k-1}\mathbf{F}_k^T\) transports existing uncertainty through the dynamics. The added \(\mathbf{Q}_k\) represents new uncertainty introduced by unmodelled acceleration.
+The first term transports the previous uncertainty through the dynamics. Adding `Q_k` accounts for new uncertainty caused by unmodelled motion.
 
 ### 5. Measurement prediction and innovation
 
 The predicted measurement is
 
-$$
-\hat{\mathbf{z}}_k=\mathbf{H}_k\hat{\mathbf{x}}^-_k.
-$$
+```math
+\hat{\mathbf{z}}_k
+= \mathbf{H}_k\hat{\mathbf{x}}_{k\mid k-1}.
+```
 
-The innovation, also called the measurement residual, is the difference between the actual and predicted measurement:
+The innovation, or measurement residual, is
 
-$$
-\boldsymbol{\nu}_k=\mathbf{z}_k-\hat{\mathbf{z}}_k
- =\mathbf{z}_k-\mathbf{H}_k\hat{\mathbf{x}}^-_k.
-$$
+```math
+\mathbf{y}_k
+= \mathbf{z}_k-\hat{\mathbf{z}}_k
+= \mathbf{z}_k-\mathbf{H}_k\hat{\mathbf{x}}_{k\mid k-1}.
+```
 
 Its covariance is
 
-$$
-\mathbf{S}_k=\mathbf{H}_k\mathbf{P}^-_k\mathbf{H}_k^T+\mathbf{R}_k.
-$$
+```math
+\mathbf{S}_k
+= \mathbf{H}_k\mathbf{P}_{k\mid k-1}\mathbf{H}_k^T
++ \mathbf{R}_k.
+```
 
-This combines uncertainty in the predicted position with sensor uncertainty. In the implementation, \(\boldsymbol{\nu}_k\) is stored as `innovation` and \(\mathbf{S}_k\) as `innovation_covariance`.
+The implementation stores these quantities as `innovation` and `innovation_covariance`.
 
-### 6. Measurement update and state estimation
+### 6. Kalman gain and measurement update
 
-The Kalman gain weights the innovation according to the relative uncertainty of the prediction and measurement:
+The Kalman gain is
 
-$$
-\mathbf{K}_k=\mathbf{P}^-_k\mathbf{H}_k^T\mathbf{S}_k^{-1}.
-$$
+```math
+\mathbf{K}_k
+= \mathbf{P}_{k\mid k-1}\mathbf{H}_k^T\mathbf{S}_k^{-1}.
+```
 
-The posterior state estimate is obtained by correcting the predicted state:
+It weights the correction according to the uncertainty in the prediction and the measurement. The posterior state estimate is
 
-$$
-\hat{\mathbf{x}}_k=\hat{\mathbf{x}}^-_k+\mathbf{K}_k\boldsymbol{\nu}_k.
-$$
+```math
+\hat{\mathbf{x}}_{k\mid k}
+= \hat{\mathbf{x}}_{k\mid k-1}+\mathbf{K}_k\mathbf{y}_k.
+```
 
-Because the measurement contains only position, the update also improves velocity through the position-velocity correlations in \(\mathbf{P}^-_k\). This is how the filter estimates velocity without a direct velocity sensor.
+Although the sensor measures only position, position-velocity correlations in `P` allow the correction to update velocity as well.
 
-The posterior covariance is updated as
+The covariance update used by the implementation is
 
-$$
-\mathbf{P}_k=(\mathbf{I}-\mathbf{K}_k\mathbf{H}_k)\mathbf{P}^-_k.
-$$
+```math
+\mathbf{P}_{k\mid k}
+= (\mathbf{I}-\mathbf{K}_k\mathbf{H}_k)\mathbf{P}_{k\mid k-1}.
+```
 
-This reduces uncertainty in directions informed by the measurement. For numerical implementations, the equivalent Joseph form is often preferred:
+An algebraically equivalent and more numerically robust form is the Joseph update:
 
-$$
-\mathbf{P}_k=(\mathbf{I}-\mathbf{K}_k\mathbf{H}_k)\mathbf{P}^-_k(\mathbf{I}-\mathbf{K}_k\mathbf{H}_k)^T+\mathbf{K}_k\mathbf{R}_k\mathbf{K}_k^T.
-$$
+```math
+\mathbf{P}_{k\mid k}
+= (\mathbf{I}-\mathbf{K}_k\mathbf{H}_k)
+\mathbf{P}_{k\mid k-1}
+(\mathbf{I}-\mathbf{K}_k\mathbf{H}_k)^T
++ \mathbf{K}_k\mathbf{R}_k\mathbf{K}_k^T.
+```
 
-The repository implementation uses the simplified covariance equation above.
-
-The same state-estimation model is documented in [`LinearKalmanFilter_Implementation/README.md`](LinearKalmanFilter_Implementation/README.md).
+The complete cycle is therefore: predict the state, propagate its covariance, predict the measurement, calculate the innovation, calculate the Kalman gain, and correct the state and covariance.
 
 ## Getting started
 
@@ -202,7 +251,7 @@ The same state-estimation model is documented in [`LinearKalmanFilter_Implementa
 - Python 3.8 or later
 - Jupyter Notebook or JupyterLab, or VS Code with the Jupyter extension
 
-Install the Python dependencies with:
+Install the dependencies with:
 
 ```bash
 python -m pip install numpy scipy matplotlib jupyter
@@ -210,56 +259,42 @@ python -m pip install numpy scipy matplotlib jupyter
 
 ### Run the notebooks
 
-From the repository root, launch Jupyter:
+From the repository root:
 
 ```bash
 jupyter notebook
 ```
 
-Then open any notebook listed above. Individual notebooks can also be launched directly:
+Then open any notebook listed in the contents table.
 
-```bash
-jupyter notebook ContinousTimeSimulation.ipynb
-jupyter notebook DiscreteTimeSimulation.ipynb
-jupyter notebook LeastSquareEstimation.ipynb
-```
-
-Run the notebook cells from top to bottom so that imports, model parameters, calculations, and plots are initialized in order.
-
-### Run the Kalman-filter implementation
-
-The implementation is contained in `LinearKalmanFilter_Implementation/`. The reusable filter and tracking components are in the `kfsims/` package:
-
-- `kfmodels.py` contains the base Kalman-filter interface and state accessors.
-- `kftracker2d.py` implements the 2D constant-velocity Kalman-filter model.
-- `tracker2d.py` and `vehiclemodel2d.py` provide tracking and vehicle-model utilities.
-- The `assignment1_*.py` files demonstrate filter initialization, prediction, and update steps.
-
-From the implementation directory, run an example with:
+### Run the Kalman filter implementation
 
 ```bash
 cd LinearKalmanFilter_Implementation
 python assignment1_answer.py
 ```
 
+The reusable components are in `LinearKalmanFilter_Implementation/kfsims/`.
+
 ## Project structure
 
 ```text
 .
-├── ContinousTimeSimulation.ipynb
-├── DiscreteTimeSimulation.ipynb
-├── LeastSquareEstimation.ipynb
-├── LinearKalmanFilter_Implementation/
-│   ├── README.md
-│   ├── assignment1_*.py
-│   └── kfsims/
-│       ├── kfmodels.py
-│       ├── kftracker2d.py
-│       ├── tracker2d.py
-│       └── vehiclemodel2d.py
-├── .gitignore
-├── LICENSE
-└── README.md
+|-- ContinousTimeSimulation.ipynb
+|-- DiscreteTimeSimulation.ipynb
+|-- LeastSquareEstimation.ipynb
+|-- LinearKalmanFilter_Implementation/
+|   |-- README.md
+|   |-- assignment1_*.py
+|   `-- kfsims/
+|       |-- __init__.py
+|       |-- kfmodels.py
+|       |-- kftracker2d.py
+|       |-- tracker2d.py
+|       `-- vehiclemodel2d.py
+|-- .gitignore
+|-- LICENSE
+`-- README.md
 ```
 
 ## License
