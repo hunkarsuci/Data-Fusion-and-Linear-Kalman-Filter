@@ -1,5 +1,12 @@
 # Data Fusion and Linear Kalman Filter
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/Python-3.8%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
+[![Jupyter](https://img.shields.io/badge/Jupyter-notebooks-F37626?logo=jupyter&logoColor=white)](https://jupyter.org/)
+[![NumPy](https://img.shields.io/badge/NumPy-supported-013243?logo=numpy&logoColor=white)](https://numpy.org/)
+[![SciPy](https://img.shields.io/badge/SciPy-supported-8CAAE6?logo=scipy&logoColor=white)](https://scipy.org/)
+[![GitHub last commit](https://img.shields.io/github/last-commit/hunkarsuci/Data-Fusion-and-Linear-Kalman-Filter)](https://github.com/hunkarsuci/Data-Fusion-and-Linear-Kalman-Filter/commits/master)
+
 Examples and exercises for modeling dynamic systems, simulating state-space models, and estimating unknown quantities from measurements.
 
 ## Contents
