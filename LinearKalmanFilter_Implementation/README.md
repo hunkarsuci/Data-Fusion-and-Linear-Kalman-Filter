@@ -63,7 +63,7 @@ The filter maintains the posterior estimate and its error covariance:
 $$
 \hat{\mathbf{x}}_k=\mathbb{E}[\mathbf{x}_k\mid\mathbf{z}_{1:k}],
 \qquad
-\mathbf{P}_k=\operatorname{Cov}(\mathbf{x}_k-\hat{\mathbf{x}}_k).
+\mathbf{P}_k=\mathrm{Cov}(\mathbf{x}_k-\hat{\mathbf{x}}_k).
 $$
 
 The diagonal of \(\mathbf{P}_k\) contains the variances of position and velocity. Its off-diagonal terms describe correlations, allowing a position measurement to improve the velocity estimate.

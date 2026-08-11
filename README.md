@@ -72,7 +72,7 @@ At each time step, the filter maintains:
 $$
 \hat{\mathbf{x}}_k = \mathbb{E}[\mathbf{x}_k\mid\mathbf{z}_{1:k}],
 \qquad
-\mathbf{P}_k = \operatorname{Cov}(\mathbf{x}_k-\hat{\mathbf{x}}_k)
+\mathbf{P}_k = \mathrm{Cov}(\mathbf{x}_k-\hat{\mathbf{x}}_k)
 $$
 
 Here \(\hat{\mathbf{x}}_k\) is the best linear-Gaussian estimate after using measurements through \(k\), and \(\mathbf{P}_k\in\mathbb{R}^{4\times4}\) is its error covariance. The diagonal entries are the variances of \(p_x,p_y,v_x,v_y\); off-diagonal entries describe correlations between state errors.
@@ -80,7 +80,7 @@ Here \(\hat{\mathbf{x}}_k\) is the best linear-Gaussian estimate after using mea
 The process-noise covariance is
 
 $$
-\mathbf{Q}_k=\operatorname{Cov}(\mathbf{w}_k).
+\mathbf{Q}_k=\mathrm{Cov}(\mathbf{w}_k).
 $$
 
 For a continuous white-acceleration model, a physically derived covariance is
@@ -117,7 +117,7 @@ $$
 The measurement noise \(\mathbf{v}_k\) is assumed zero mean and independent of the process noise, with covariance
 
 $$
-\mathbf{R}_k=\operatorname{Cov}(\mathbf{v}_k)
+\mathbf{R}_k=\mathrm{Cov}(\mathbf{v}_k)
  =\begin{bmatrix}\sigma_m^2&0\\0&\sigma_m^2\end{bmatrix}.
 $$
 
@@ -127,16 +127,16 @@ $$
 
 Before receiving the measurement at time \(k\), the filter propagates the previous posterior estimate forward:
 
-   $$
-   \hat{\mathbf{x}}^-_k=\mathbf{F}_k\hat{\mathbf{x}}_{k-1}
-   $$
+$$
+\hat{\mathbf{x}}^-_k=\mathbf{F}_k\hat{\mathbf{x}}_{k-1}
+$$
 
 The superscript \((-\)) denotes the prior, or predicted, quantity. The predicted state is the physical model applied to the previous estimate. The covariance propagation follows from the predicted error
 \(\mathbf{e}^-_k=\mathbf{x}_k-\hat{\mathbf{x}}^-_k=\mathbf{F}_k\mathbf{e}_{k-1}+\mathbf{w}_k\):
 
-   $$
-   \mathbf{P}^-_k=\mathbf{F}_k\mathbf{P}_{k-1}\mathbf{F}_k^T+\mathbf{Q}_k.
-   $$
+$$
+\mathbf{P}^-_k=\mathbf{F}_k\mathbf{P}_{k-1}\mathbf{F}_k^T+\mathbf{Q}_k.
+$$
 
 The term \(\mathbf{F}_k\mathbf{P}_{k-1}\mathbf{F}_k^T\) transports existing uncertainty through the dynamics. The added \(\mathbf{Q}_k\) represents new uncertainty introduced by unmodelled acceleration.
 
@@ -167,15 +167,15 @@ This combines uncertainty in the predicted position with sensor uncertainty. In 
 
 The Kalman gain weights the innovation according to the relative uncertainty of the prediction and measurement:
 
-   $$
-   \mathbf{K}_k=\mathbf{P}^-_k\mathbf{H}_k^T\mathbf{S}_k^{-1}.
-   $$
+$$
+\mathbf{K}_k=\mathbf{P}^-_k\mathbf{H}_k^T\mathbf{S}_k^{-1}.
+$$
 
 The posterior state estimate is obtained by correcting the predicted state:
 
-   $$
-   \hat{\mathbf{x}}_k=\hat{\mathbf{x}}^-_k+\mathbf{K}_k\boldsymbol{\nu}_k.
-   $$
+$$
+\hat{\mathbf{x}}_k=\hat{\mathbf{x}}^-_k+\mathbf{K}_k\boldsymbol{\nu}_k.
+$$
 
 Because the measurement contains only position, the update also improves velocity through the position-velocity correlations in \(\mathbf{P}^-_k\). This is how the filter estimates velocity without a direct velocity sensor.
 
