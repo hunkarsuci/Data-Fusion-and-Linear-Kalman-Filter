@@ -36,15 +36,15 @@ class KalmanFilterModel(KalmanFilterBase):
                            [0,0,0,1]])
 
         # Set the Q Matrix
-        accel_std = 0.0
+        accel_std = 0.1
         self.Q = np.diag(np.array([(0.5*dt*dt),(0.5*dt*dt),dt,dt]) * (accel_std*accel_std))
 
         # Setup the Model H Matrix
-        #self.H =
+        self.H = np.array([[1,0,0,0],[0,1,0,0]])
 
         # Set the R Matrix
         meas_std = 10.0
-        #self.R = 
+        self.R = np.diag([meas_std*meas_std, meas_std*meas_std])
         
         return
     
@@ -70,27 +70,29 @@ class KalmanFilterModel(KalmanFilterBase):
         if self.state is not None and self.covariance is not None:
             x = self.state
             P = self.covariance
+            H = self.H
+            R = self.R
 
             # Calculate Kalman Filter Update
             z = np.array([measurement[0],measurement[1]])
 
             # Predicted Measurement: z_hat = H * x
-            # z_hat = 
+            z_hat = np.matmul(H,x)
 
             # Innovation: y = z - z_hat
-            y = None
+            y = z - z_hat
 
             # Innovation Covariance: S = H * P * H' + R
-            S = None
+            S = np.matmul(H,np.matmul(P,np.transpose(H))) + R
 
             # Kalman Gain: K = P * H' * S^-1
-            # K = 
+            K = np.matmul(P, np.matmul(np.transpose(H), np.linalg.inv(S)))
 
             # Kalman State Update: x_update = x + K*y
-            x_update = x
+            x_update = x + np.matmul(K, y)
 
             # Kalman Covariance Update: P_update = (I - K*H)*P
-            P_update = P
+            P_update = np.matmul((np.eye(4) - np.matmul(K,H)), P)
 
             # Save Updated State
             self.innovation = y

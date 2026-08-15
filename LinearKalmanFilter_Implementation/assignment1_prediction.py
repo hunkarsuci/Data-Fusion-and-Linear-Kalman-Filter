@@ -19,29 +19,23 @@ class KalmanFilterModel(KalmanFilterBase):
     
     def initialise(self, time_step):
 
-        # Define a np.array 4x1 with the initial state (px,py,vx,vy)
-        self.state = np.array((0.0,0.0,7.07,7.07)) # 45 degree 
+        # Set Initial State and Covariance
+        self.state = np.array([0,0,7.07,7.07])
+        self.covariance = np.diag(np.array([0,0,0,0]))
 
-        # Define a np.array 4x4 for the initial covariance
-        self.covariance = np.diag(np.array([5*5, 5*5, 0.0, 0.0]))
-
-        # Setup the Model F Matrix (state transition matrix in the prediction model)
+        # Setup the Model F Matrix
         dt = time_step
         self.F = np.array([[1,0,dt,0],
                            [0,1,0,dt],
                            [0,0,1,0],
-                           [0,0,0,1]
-                           ])
+                           [0,0,0,1]])
 
         # Set the Q Matrix
-        accel_std = 0.1 
-        self.Q = np.diag([0.5 * dt * dt,
-                          0.5 * dt * dt,
-                          dt,
-                          dt]) * accel_std**2
+        accel_std = 0.1
+        self.Q = np.diag(np.array([(0.5*dt*dt),(0.5*dt*dt),dt,dt]) * (accel_std*accel_std))
         
         return
-    
+
     def prediction_step(self):
         # Make Sure Filter is Initialised
         if self.state is not None:
@@ -51,9 +45,9 @@ class KalmanFilterModel(KalmanFilterBase):
             # Calculate Kalman Filter Prediction
             
             # State Prediction: x_predict = F * x
-            x_predict = np.matmul(self.F, x)
+            x_predict = np.matmul(self.F, x) 
 
-            # Covariance Prediction: P_predict = F * P * F' + Q 
+            # Covariance Prediction: P_predict = F * P * F' + Q
             P_predict = np.matmul(self.F, np.matmul(P, np.transpose(self.F))) + self.Q
 
             # Save Predicted State
@@ -64,7 +58,6 @@ class KalmanFilterModel(KalmanFilterBase):
 
     def update_step(self, measurement):
         return 
-
 
 
 # Run the Simulation
