@@ -1,0 +1,1024 @@
+warning: in the working copy of 'LinearKalmanFilter_Implementation/README.md', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'LinearKalmanFilter_Implementation/assignment1_answer.py', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'README.md', LF will be replaced by CRLF the next time Git touches it
+[1mdiff --git a/LinearKalmanFilter_Implementation/README.md b/LinearKalmanFilter_Implementation/README.md[m
+[1mindex 7e4d8c0..cb008fa 100644[m
+[1m--- a/LinearKalmanFilter_Implementation/README.md[m
+[1m+++ b/LinearKalmanFilter_Implementation/README.md[m
+[36m@@ -1,129 +1,89 @@[m
+ # Linear Kalman Filter Implementation[m
+ [m
+[31m-This directory implements a linear Kalman filter for estimating two-dimensional position and velocity from noisy position measurements.[m
+[32m+[m[32mThis directory contains the Python exercises for linear Kalman filtering.[m
+ [m
+[31m-## Models[m
+[32m+[m[32m## Assignment 1: vehicle tracking[m
+ [m
+[31m-The state and measurement equations are[m
+[32m+[m[32mAssignment 1 estimates two-dimensional position and velocity from noisy position measurements. The state is[m
+ [m
+[31m-```math[m
+[31m-\mathbf{x}_k=\mathbf{F}_k\mathbf{x}_{k-1}+\mathbf{w}_k,[m
+[31m-\qquad[m
+[31m-\mathbf{z}_k=\mathbf{H}_k\mathbf{x}_k+\mathbf{v}_k,[m
+[32m+[m[32m```text[m
+[32m+[m[32mx = [position_x, position_y, velocity_x, velocity_y]^T[m
+ ```[m
+ [m
+[31m-where[m
+[31m-[m
+[31m-```math[m
+[31m-\mathbf{x}_k=[m
+[31m-\begin{bmatrix}[m
+[31m-p_{x,k} \\[m
+[31m-p_{y,k} \\[m
+[31m-v_{x,k} \\[m
+[31m-v_{y,k}[m
+[31m-\end{bmatrix},[m
+[31m-\quad[m
+[31m-\mathbf{F}_k=[m
+[31m-\begin{bmatrix}[m
+[31m-1&0&\Delta t&0 \\[m
+[31m-0&1&0&\Delta t \\[m
+[31m-0&0&1&0 \\[m
+[31m-0&0&0&1[m
+[31m-\end{bmatrix},[m
+[31m-\quad[m
+[31m-\mathbf{H}_k=[m
+[31m-\begin{bmatrix}[m
+[31m-1&0&0&0 \\[m
+[31m-0&1&0&0[m
+[31m-\end{bmatrix}.[m
+[31m-```[m
+[32m+[m[32mFiles:[m
+ [m
+[31m-The noises are modeled as[m
+[32m+[m[32m- `assignment1_initial_conditions.py` — initialization exercise.[m
+[32m+[m[32m- `assignment1_prediction.py` — state and covariance prediction.[m
+[32m+[m[32m- `assignment1_update.py` — measurement update.[m
+[32m+[m[32m- `assignment1_answer.py` — completed example.[m
+[32m+[m[32m- `kfsims/kfmodels.py` — filter state and covariance accessors.[m
+[32m+[m[32m- `kfsims/kftracker2d.py` — two-dimensional Kalman filter model.[m
+[32m+[m[32m- `kfsims/tracker2d.py` — simulation, plotting, and animation.[m
+[32m+[m[32m- `kfsims/vehiclemodel2d.py` — simulated vehicle motion model.[m
+ [m
+[31m-```math[m
+[31m-\mathbf{w}_k\sim\mathcal{N}(\mathbf{0},\mathbf{Q}_k),[m
+[31m-\qquad[m
+[31m-\mathbf{v}_k\sim\mathcal{N}(\mathbf{0},\mathbf{R}_k).[m
+[31m-```[m
+[32m+[m[32mRun the completed example:[m
+ [m
+[31m-The code uses[m
+[31m-[m
+[31m-```math[m
+[31m-\mathbf{Q}_{\mathrm{code}}=\sigma_a^2[m
+[31m-\mathrm{diag}\!\left([m
+[31m-\frac{\Delta t^2}{2},[m
+[31m-\frac{\Delta t^2}{2},[m
+[31m-\Delta t,[m
+[31m-\Delta t[m
+[31m-\right),[m
+[31m-\qquad[m
+[31m-\mathbf{R}_k=[m
+[31m-\begin{bmatrix}[m
+[31m-\sigma_m^2&0 \\[m
+[31m-0&\sigma_m^2[m
+[31m-\end{bmatrix}.[m
+[32m+[m[32m```powershell[m
+[32m+[m[32mcd LinearKalmanFilter_Implementation[m
+[32m+[m[32mpython assignment1_answer.py[m
+ ```[m
+ [m
+[31m-`accel_std` supplies `sigma_a`, and `meas_std` supplies `sigma_m`.[m
+[31m-[m
+[31m-## Kalman Filter recursion[m
+[32m+[m[32m## Assignment 2: pendulum estimation[m
+ [m
+[31m-### Prediction[m
+[32m+[m[32mAssignment 2 simulates a nonlinear pendulum and estimates its angle and angular velocity with a linearized Kalman filter. The state is[m
+ [m
+[31m-```math[m
+[31m-\hat{\mathbf{x}}_{k\mid k-1}[m
+[31m-=\mathbf{F}_k\hat{\mathbf{x}}_{k-1\mid k-1}[m
+[32m+[m[32m```text[m
+[32m+[m[32mx = [angle, angular_velocity]^T[m
+ ```[m
+ [m
+[31m-```math[m
+[31m-\mathbf{P}_{k\mid k-1}[m
+[31m-=\mathbf{F}_k\mathbf{P}_{k-1\mid k-1}\mathbf{F}_k^T+\mathbf{Q}_k[m
+[31m-```[m
+[31m-[m
+[31m-### Measurement prediction and innovation[m
+[32m+[m[32mThe linearized model is[m
+ [m
+[31m-```math[m
+[31m-\hat{\mathbf{z}}_k=\mathbf{H}_k\hat{\mathbf{x}}_{k\mid k-1}[m
+[32m+[m[32m```text[m
+[32m+[m[32mA = [[0, 1], [-9.81 / length, 0]][m
+[32m+[m[32mF = expm(A * time_step)[m
+[32m+[m[32mH = [[1, 0]][m
+ ```[m
+ [m
+[31m-```math[m
+[31m-\mathbf{y}_k=\mathbf{z}_k-\hat{\mathbf{z}}_k[m
+[31m-```[m
+[32m+[m[32mOnly the pendulum angle is measured. The simulation reports innovation standard deviation, position mean-squared error, and velocity mean-squared error.[m
+ [m
+[31m-```math[m
+[31m-\mathbf{S}_k[m
+[31m-=\mathbf{H}_k\mathbf{P}_{k\mid k-1}\mathbf{H}_k^T+\mathbf{R}_k[m
+[31m-```[m
+[32m+[m[32mFiles:[m
+ [m
+[31m-### Measurement update[m
+[32m+[m[32m- `LinearKF_Pendelum/assignment2_filter.py` — completed filter and main entry point.[m
+[32m+[m[32m- `LinearKF_Pendelum/assignment2_filter_answer.py` — reference filter.[m
+[32m+[m[32m- `LinearKF_Pendelum/assignment2_sims.py` — standalone nonlinear/linear simulation.[m
+[32m+[m[32m- `LinearKF_Pendelum/assignment2_answer.py` — reference simulation entry point.[m
+[32m+[m[32m- `LinearKF_Pendelum/kfpendulum.py` — simulation loop, statistics, plots, and animation.[m
+[32m+[m[32m- `LinearKF_Pendelum/pendulum.py` — nonlinear pendulum model.[m
+[32m+[m[32m- `LinearKF_Pendelum/kfsims/kfmodels.py` — Kalman-filter base class.[m
+ [m
+[31m-```math[m
+[31m-\mathbf{K}_k[m
+[31m-=\mathbf{P}_{k\mid k-1}\mathbf{H}_k^T\mathbf{S}_k^{-1}[m
+[31m-```[m
+[32m+[m[32mRun Assignment 2 from the repository root:[m
+ [m
+[31m-```math[m
+[31m-\hat{\mathbf{x}}_{k\mid k}[m
+[31m-=\hat{\mathbf{x}}_{k\mid k-1}+\mathbf{K}_k\mathbf{y}_k[m
+[32m+[m[32m```powershell[m
+[32m+[m[32mpython LinearKalmanFilter_Implementation\LinearKF_Pendelum\assignment2_filter.py[m
+ ```[m
+ [m
+[31m-```math[m
+[31m-\mathbf{P}_{k\mid k}[m
+[31m-=(\mathbf{I}-\mathbf{K}_k\mathbf{H}_k)\mathbf{P}_{k\mid k-1}[m
+[31m-```[m
+[32m+[m[32mSet `draw_plots` and `draw_animation` to `False` in `sim_options` when graphical output is not needed.[m
+ [m
+[31m-The implementation stores `y_k` as `innovation` and `S_k` as `innovation_covariance`. See the repository's [main README](../README.md) for the full interpretation of each equation and the standard continuous white-acceleration covariance.[m
+[32m+[m[32m## Kalman filter lifecycle[m
+ [m
+[31m-## Implementation files[m
+[32m+[m[32mBoth assignments use the standard sequence:[m
+ [m
+[31m-- `kfsims/kfmodels.py`: state, covariance, innovation, and innovation-covariance accessors.[m
+[31m-- `kfsims/kftracker2d.py`: complete two-dimensional linear Kalman filter.[m
+[31m-- `kfsims/tracker2d.py`: simulation and plotting utilities.[m
+[31m-- `kfsims/vehiclemodel2d.py`: simulated vehicle motion model.[m
+[31m-- `assignment1_*.py`: initialization, prediction, and measurement-update examples.[m
+[32m+[m[32m```text[m
+[32m+[m[32mx_predict = F x_previous[m
+[32m+[m[32mP_predict = F P_previous F^T + Q[m
+[32m+[m[32my = z - H x_predict[m
+[32m+[m[32mS = H P_predict H^T + R[m
+[32m+[m[32mK = P_predict H^T S^-1[m
+[32m+[m[32mx_update = x_predict + K y[m
+[32m+[m[32mP_update = (I - K H) P_predict[m
+[32m+[m[32m```[m
+ [m
+[31m-Run an example from this directory:[m
+[32m+[m[32m`Q` controls confidence in the motion model. `R` controls confidence in the measurement. Increasing `Q` makes the filter respond faster to model mismatch; increasing `R` makes it rely more on prediction.[m
+ [m
+[31m-```bash[m
+[31m-python assignment1_answer.py[m
+[32m+[m[32m## Dependencies[m
+[32m+[m
+[32m+[m[32m```powershell[m
+[32m+[m[32mpython -m pip install numpy scipy matplotlib[m
+ ```[m
+[32m+[m
+[32m+[m[32mSee the [main README](../README.md) for the complete project overview and notebook instructions.[m
+[1mdiff --git a/LinearKalmanFilter_Implementation/assignment1_answer.py b/LinearKalmanFilter_Implementation/assignment1_answer.py[m
+[1mindex 8d75bfc..d834243 100644[m
+[1m--- a/LinearKalmanFilter_Implementation/assignment1_answer.py[m
+[1m+++ b/LinearKalmanFilter_Implementation/assignment1_answer.py[m
+[36m@@ -14,7 +14,7 @@[m [msim_options = {'time_step': 0.01,[m
+                'draw_plots': True,[m
+                'draw_animation': True} [m
+ [m
+[31m-kf_options = {'accel_std':0.5, # Q Matrix Param[m
+[32m+[m[32mkf_options = {'accel_std':0.0, # Q Matrix Param[m
+               'meas_std':10, # R Matrix  [m
+               'init_on_measurement':True}[m
+ [m
+[1mdiff --git a/LinearKalmanFilter_Implementation/kfsims/__init__.py b/LinearKalmanFilter_Implementation/kfsims/__init__.py[m
+[1mdeleted file mode 100644[m
+[1mindex e69de29..0000000[m
+[1mdiff --git a/LinearKalmanFilter_Implementation/kfsims/kfmodels.py b/LinearKalmanFilter_Implementation/kfsims/kfmodels.py[m
+[1mdeleted file mode 100644[m
+[1mindex 8ce7c2a..0000000[m
+[1m--- a/LinearKalmanFilter_Implementation/kfsims/kfmodels.py[m
+[1m+++ /dev/null[m
+[36m@@ -1,28 +0,0 @@[m
+[31m-class KalmanFilterBase:[m
+[31m-[m
+[31m-    def __init__(self):[m
+[31m-        self.state = None[m
+[31m-        self.covariance = None[m
+[31m-        self.innovation = None[m
+[31m-        self.innovation_covariance = None[m
+[31m-[m
+[31m-    def get_current_state(self):[m
+[31m-        if self.state is not None:[m
+[31m-            return self.state.tolist()[m
+[31m-        return None[m
+[31m-[m
+[31m-    def get_current_covariance(self):[m
+[31m-        if self.covariance is not None:[m
+[31m-            return self.covariance.tolist()[m
+[31m-        return None[m
+[31m-[m
+[31m-    def get_last_innovation(self):[m
+[31m-        if self.innovation is not None:[m
+[31m-            return self.innovation.tolist()[m
+[31m-        return None[m
+[31m-[m
+[31m-    def get_last_innovation_covariance(self):[m
+[31m-        if self.innovation_covariance is not None:[m
+[31m-            return self.innovation_covariance.tolist()[m
+[31m-        return None[m
+[31m-[m
+[1mdiff --git a/LinearKalmanFilter_Implementation/kfsims/kftracker2d.py b/LinearKalmanFilter_Implementation/kfsims/kftracker2d.py[m
+[1mdeleted file mode 100644[m
+[1mindex fec0221..0000000[m
+[1m--- a/LinearKalmanFilter_Implementation/kfsims/kftracker2d.py[m
+[1m+++ /dev/null[m
+[36m@@ -1,77 +0,0 @@[m
+[31m-import numpy as np[m
+[31m-from .kfmodels import KalmanFilterBase[m
+[31m-[m
+[31m-# Kalman Filter Model[m
+[31m-class KalmanFilterModel(KalmanFilterBase):[m
+[31m-    [m
+[31m-    def initialise(self, time_step, accel_std, meas_std, init_on_measurement=False, init_pos_std = 500, init_vel_std = 50):[m
+[31m-        dt = time_step[m
+[31m-        [m
+[31m-        # Set Model F and H Matrices[m
+[31m-        self.F = np.array([[1,0,dt,0],[m
+[31m-                           [0,1,0,dt],[m
+[31m-                           [0,0,1,0],[m
+[31m-                           [0,0,0,1]])[m
+[31m-[m
+[31m-        self.H = np.array([[1,0,0,0],[0,1,0,0]])[m
+[31m-[m
+[31m-        # Set R and Q Matrices[m
+[31m-        self.Q = np.diag(np.array([(0.5*dt*dt),(0.5*dt*dt),dt,dt]) * (accel_std*accel_std))[m
+[31m-        self.R = np.diag([meas_std*meas_std, meas_std*meas_std])[m
+[31m-[m
+[31m-        # Set Initial State and Covariance [m
+[31m-        if init_on_measurement is False:[m
+[31m-            self.state = np.array([0,0,0,0]) # Assume we are at zero position and velocity[m
+[31m-            self.covariance = np.diag(np.array([init_pos_std*init_pos_std,init_pos_std*init_pos_std,init_vel_std*init_vel_std,init_vel_std*init_vel_std]))[m
+[31m-        [m
+[31m-        return[m
+[31m-    [m
+[31m-    def prediction_step(self):[m
+[31m-        # Make Sure Filter is Initialised[m
+[31m-        if self.state is not None:[m
+[31m-            x = self.state[m
+[31m-            P = self.covariance[m
+[31m-[m
+[31m-            # Calculate Kalman Filter Prediction[m
+[31m-            x_predict = np.matmul(self.F, x) [m
+[31m-            P_predict = np.matmul(self.F, np.matmul(P, np.transpose(self.F))) + self.Q[m
+[31m-[m
+[31m-            # Save Predicted State[m
+[31m-            self.state = x_predict[m
+[31m-            self.covariance = P_predict[m
+[31m-[m
+[31m-        return[m
+[31m-[m
+[31m-    def update_step(self, measurement):[m
+[31m-[m
+[31m-        # Make Sure Filter is Initialised[m
+[31m-        if self.state is not None and self.covariance is not None:[m
+[31m-            x = self.state[m
+[31m-            P = self.covariance[m
+[31m-            H = self.H[m
+[31m-            R = self.R[m
+[31m-[m
+[31m-            # Calculate Kalman Filter Update[m
+[31m-            z = np.array([measurement[0],measurement[1]])[m
+[31m-            z_hat = np.matmul(H, x)[m
+[31m-[m
+[31m-            y = z - z_hat[m
+[31m-            S = np.matmul(H,np.matmul(P,np.transpose(H))) + R[m
+[31m-            K = np.matmul(P,np.matmul(np.transpose(H),np.linalg.inv(S)))[m
+[31m-            [m
+[31m-            x_update = x + np.matmul(K, y)[m
+[31m-            P_update = np.matmul( (np.eye(4) - np.matmul(K,H)), P)[m
+[31m-[m
+[31m-            # Save Updated State[m
+[31m-            self.innovation = y[m
+[31m-            self.innovation_covariance = S[m
+[31m-            self.state = x_update[m
+[31m-            self.covariance = P_update[m
+[31m-[m
+[31m-        else:[m
+[31m-[m
+[31m-            # Set Initial State and Covariance [m
+[31m-            self.state = np.array([measurement[0],measurement[1],0,0])[m
+[31m-            self.covariance = np.diag(np.array([self.R[0,0],self.R[1,1],10,10])) # Assume we don't know our velocity[m
+[31m-[m
+[31m-        return [m
+\ No newline at end of file[m
+[1mdiff --git a/LinearKalmanFilter_Implementation/kfsims/tracker2d.py b/LinearKalmanFilter_Implementation/kfsims/tracker2d.py[m
+[1mdeleted file mode 100644[m
+[1mindex bf8e0ac..0000000[m
+[1m--- a/LinearKalmanFilter_Implementation/kfsims/tracker2d.py[m
+[1m+++ /dev/null[m
+[36m@@ -1,261 +0,0 @@[m
+[31m-import numpy as np[m
+[31m-import matplotlib as mpl[m
+[31m-import matplotlib.pyplot as plt[m
+[31m-import matplotlib.animation as animation[m
+[31m-import matplotlib.gridspec as gridspec[m
+[31m-from .vehiclemodel2d import VehicleModel2D[m
+[31m-[m
+[31m-[m
+[31m-[m
+[31m-def run_sim(KalmanFilterModel, sim_option, kf_options):[m
+[31m-[m
+[31m-    dt = sim_option['time_step']         [m
+[31m-    end_time = sim_option['end_time'][m
+[31m-    measurement_rate = sim_option['measurement_rate'][m
+[31m-    measurement_noise_std = sim_option['measurement_noise_std'][m
+[31m-    motion_type = sim_option['motion_type'][m
+[31m-    draw_plots = sim_option['draw_plots'][m
+[31m-    draw_animation = sim_option['draw_animation'][m
+[31m-    start_at_origin = sim_option['start_at_origin'][m
+[31m-    start_at_random_speed = sim_option['start_at_random_speed'][m
+[31m-    start_at_random_heading = sim_option['start_at_random_heading'][m
+[31m-[m
+[31m-    initial_x_position = 0[m
+[31m-    initial_y_position = 0[m
+[31m-    if start_at_origin is False:[m
+[31m-        initial_x_position = 1000*(np.random.rand()-0.5)[m
+[31m-        initial_y_position = 1000*(np.random.rand()-0.5)[m
+[31m-[m
+[31m-    initial_speed = 10[m
+[31m-    if start_at_random_speed is True:[m
+[31m-        initial_speed = np.random.rand() * 20[m
+[31m-[m
+[31m-    initial_heading = 45[m
+[31m-    if start_at_random_heading is True:[m
+[31m-        initial_heading = 180*(np.random.rand()-0.5)[m
+[31m-[m
+[31m-[m
+[31m-    vehicle_params = {'initial_x_position': initial_x_position,[m
+[31m-                      'initial_y_position': initial_x_position,[m
+[31m-                      'initial_heading': np.deg2rad(initial_heading),[m
+[31m-                      'initial_speed': initial_speed}[m
+[31m-[m
+[31m-[m
+[31m-[m
+[31m-[m
+[31m-    meas_steps = np.ceil((1/measurement_rate)/dt).astype(int)[m
+[31m-    num_steps = np.ceil(end_time/dt).astype(int)[m
+[31m-[m
+[31m-    # Create the Simulation Objects[m
+[31m-    vehicle_model = VehicleModel2D()[m
+[31m-    kalman_filter = KalmanFilterModel()[m
+[31m-[m
+[31m-    # Initialise the Components[m
+[31m-    vehicle_model.initialise(vehicle_params)[m
+[31m-    kalman_filter.initialise(dt, **kf_options)[m
+[31m-    [m
+[31m-[m
+[31m-    # Save the Initial States[m
+[31m-    time_history = np.linspace(0.0, dt*num_steps, num_steps+1)[m
+[31m-    vehicle_position_history = [vehicle_model.get_position()][m
+[31m-    vehicle_velocity_history = [vehicle_model.get_velocity()][m
+[31m-    measurement_history = [None][m
+[31m-    estimated_state_history = [kalman_filter.get_current_state()][m
+[31m-    estimated_covariance_history = [kalman_filter.get_current_covariance()][m
+[31m-    estimated_error_history = [None][m
+[31m-[m
+[31m-    measurement_innovation_history = [None][m
+[31m-    measurement_innovation_covariance_history = [None][m
+[31m-[m
+[31m-    rand_param = np.random.randn()*0.1[m
+[31m-[m
+[31m-    # Run the Simulation[m
+[31m-    for k in range(1, num_steps+1):[m
+[31m-[m
+[31m-        # Update the Vehicle Model[m
+[31m-        if motion_type == 'random':[m
+[31m-            vehicle_model.update_vehicle(dt, np.random.randn()*2 , np.random.randn()*2)[m
+[31m-        elif motion_type == 'circle':[m
+[31m-            vehicle_model.update_vehicle(dt, 0 , np.deg2rad(360/120))[m
+[31m-        elif motion_type == 'linear':[m
+[31m-            vehicle_model.update_vehicle(dt,rand_param,0)[m
+[31m-        else:[m
+[31m-            vehicle_model.update_vehicle(dt, 0, 0)[m
+[31m-[m
+[31m-        vehicle_position = vehicle_model.get_position()[m
+[31m-        vehicle_velocity = vehicle_model.get_velocity()[m
+[31m-[m
+[31m-        # KF Prediction[m
+[31m-        kalman_filter.prediction_step()[m
+[31m-[m
+[31m-        # KF Measurement[m
+[31m-        measurement = None[m
+[31m-        if (k % meas_steps) == 0:[m
+[31m-            x_meas = vehicle_position[0] + np.random.randn()*measurement_noise_std[m
+[31m-            y_meas = vehicle_position[1] + np.random.randn()*measurement_noise_std[m
+[31m-            measurement = [x_meas,y_meas][m
+[31m-            kalman_filter.update_step(measurement)[m
+[31m-            measurement_innovation_history.append(kalman_filter.get_last_innovation())[m
+[31m-            measurement_innovation_covariance_history.append(kalman_filter.get_last_innovation_covariance())[m
+[31m-            [m
+[31m-        # Estimation Error[m
+[31m-        estimation_error = None[m
+[31m-        estimated_state = kalman_filter.get_current_state()[m
+[31m-        if estimated_state is not None:[m
+[31m-            estimation_error = [estimated_state[0] - vehicle_position[0], [m
+[31m-                                estimated_state[1] - vehicle_position[1],[m
+[31m-                                estimated_state[2] - vehicle_velocity[0], [m
+[31m-                                estimated_state[3] - vehicle_velocity[1]][m
+[31m-        [m
+[31m-        # Save Data[m
+[31m-        vehicle_position_history.append(vehicle_model.get_position())[m
+[31m-        vehicle_velocity_history.append(vehicle_model.get_velocity())[m
+[31m-        measurement_history.append(measurement)[m
+[31m-        estimated_state_history.append(kalman_filter.get_current_state())[m
+[31m-        estimated_covariance_history.append(kalman_filter.get_current_covariance())[m
+[31m-        estimated_error_history.append(estimation_error)[m
+[31m-[m
+[31m-    # Calculate Stats[m
+[31m-    x_innov_std = np.std([v[0] for v in measurement_innovation_history if v is not None])[m
+[31m-    y_innov_std = np.std([v[1] for v in measurement_innovation_history if v is not None])[m
+[31m-    pos_mse = np.mean([(v[0]**2+v[1]**2) for v in estimated_error_history if v is not None])[m
+[31m-    vel_mse = np.mean([(v[2]**2+v[3]**2) for v in estimated_error_history if v is not None])[m
+[31m-    print('X Position Measurement Innovation Std: {} (m)'.format(x_innov_std))[m
+[31m-    print('Y Position Measurement Innovation Std: {} (m)'.format(y_innov_std))[m
+[31m-    print('Position Mean Squared Error: {} (m)^2'.format(pos_mse))[m
+[31m-    print('Velocity Mean Squared Error: {} (m/s)^2'.format(vel_mse))[m
+[31m-[m
+[31m-[m
+[31m-[m
+[31m-    if draw_plots is True:[m
+[31m-        # Plot Analysis[m
+[31m-        fig1 = plt.figure(constrained_layout=True)[m
+[31m-        fig1_gs = gridspec.GridSpec(ncols=2, nrows=4, figure=fig1)[m
+[31m-[m
+[31m-        fig1_ax1 = fig1.add_subplot(fig1_gs[0,0],title='X Position')[m
+[31m-        fig1_ax2 = fig1.add_subplot(fig1_gs[1,0],title='Y Position')[m
+[31m-        fig1_ax3 = fig1.add_subplot(fig1_gs[2,0],title='X Velocity')[m
+[31m-        fig1_ax4 = fig1.add_subplot(fig1_gs[3,0],title='Y Velocity')[m
+[31m-        fig1_ax5 = fig1.add_subplot(fig1_gs[0,1],title='X Position Error')[m
+[31m-        fig1_ax6 = fig1.add_subplot(fig1_gs[1,1],title='Y Position Error')[m
+[31m-        fig1_ax7 = fig1.add_subplot(fig1_gs[2,1],title='X Velocity Error')[m
+[31m-        fig1_ax8 = fig1.add_subplot(fig1_gs[3,1],title='Y Velocity Error')[m
+[31m-        fig1_ax1.grid(True)[m
+[31m-        fig1_ax2.grid(True)[m
+[31m-        fig1_ax3.grid(True)[m
+[31m-        fig1_ax4.grid(True)[m
+[31m-        fig1_ax5.grid(True)[m
+[31m-        fig1_ax6.grid(True)[m
+[31m-        fig1_ax7.grid(True)[m
+[31m-        fig1_ax8.grid(True)[m
+[31m-        fig1_ax4.set_xlabel('Time (sec)')[m
+[31m-        fig1_ax8.set_xlabel('Time (sec)')[m
+[31m-        fig1_ax1.set_ylabel('X Position (m)')[m
+[31m-        fig1_ax2.set_ylabel('Y Position (m)')[m
+[31m-        fig1_ax3.set_ylabel('X Velocity (m/s)')[m
+[31m-        fig1_ax4.set_ylabel('Y Velocity (m/s)')[m
+[31m-[m
+[31m-        # Plot Vehicle State[m
+[31m-        fig1_ax1.plot(time_history, [v[0] for v in vehicle_position_history], 'b')[m
+[31m-        fig1_ax2.plot(time_history, [v[1] for v in vehicle_position_history], 'b')[m
+[31m-        fig1_ax3.plot(time_history, [v[0] for v in vehicle_velocity_history], 'b')[m
+[31m-        fig1_ax4.plot(time_history, [v[1] for v in vehicle_velocity_history], 'b')[m
+[31m-[m
+[31m-        # Plot Estimated States[m
+[31m-        time_plot = [t for t,v in zip(time_history, estimated_state_history) if v is not None ][m
+[31m-        fig1_ax1.plot(time_plot, [v[0] for v in estimated_state_history if v is not None], 'r')[m
+[31m-        fig1_ax2.plot(time_plot, [v[1] for v in estimated_state_history if v is not None], 'r')[m
+[31m-        fig1_ax3.plot(time_plot, [v[2] for v in estimated_state_history if v is not None], 'r')[m
+[31m-        fig1_ax4.plot(time_plot, [v[3] for v in estimated_state_history if v is not None], 'r')[m
+[31m-[m
+[31m-        # Plot Measurements[m
+[31m-        time_plot = [t for t,v in zip(time_history, measurement_history) if v is not None ][m
+[31m-        fig1_ax1.plot(time_plot, [v[0] for v in measurement_history if v is not None], 'k+')[m
+[31m-        fig1_ax2.plot(time_plot, [v[1] for v in measurement_history if v is not None], 'k+')[m
+[31m-[m
+[31m-        # Plot Errors[m
+[31m-        time_plot = [t for t,v in zip(time_history, estimated_error_history) if v is not None ][m
+[31m-        fig1_ax5.plot(time_plot, [v[0] for v in estimated_error_history if v is not None], 'r')[m
+[31m-        fig1_ax6.plot(time_plot, [v[1] for v in estimated_error_history if v is not None], 'r')[m
+[31m-        fig1_ax7.plot(time_plot, [v[2] for v in estimated_error_history if v is not None], 'r')[m
+[31m-        fig1_ax8.plot(time_plot, [v[3] for v in estimated_error_history if v is not None], 'r')[m
+[31m-        time_plot = [t for t,v in zip(time_history, estimated_covariance_history) if v is not None ][m
+[31m-        fig1_ax5.plot(time_plot, [3.0*np.sqrt(v[0][0]) for v in estimated_covariance_history if v is not None], 'g')[m
+[31m-        fig1_ax6.plot(time_plot, [3.0*np.sqrt(v[1][1]) for v in estimated_covariance_history if v is not None], 'g')[m
+[31m-        fig1_ax7.plot(time_plot, [3.0*np.sqrt(v[2][2]) for v in estimated_covariance_history if v is not None], 'g')[m
+[31m-        fig1_ax8.plot(time_plot, [3.0*np.sqrt(v[3][3]) for v in estimated_covariance_history if v is not None], 'g')[m
+[31m-        fig1_ax5.plot(time_plot, [-3.0*np.sqrt(v[0][0]) for v in estimated_covariance_history if v is not None], 'g')[m
+[31m-        fig1_ax6.plot(time_plot, [-3.0*np.sqrt(v[1][1]) for v in estimated_covariance_history if v is not None], 'g')[m
+[31m-        fig1_ax7.plot(time_plot, [-3.0*np.sqrt(v[2][2]) for v in estimated_covariance_history if v is not None], 'g')[m
+[31m-        fig1_ax8.plot(time_plot, [-3.0*np.sqrt(v[3][3]) for v in estimated_covariance_history if v is not None], 'g')[m
+[31m-[m
+[31m-        fig2 = plt.figure(constrained_layout=True)[m
+[31m-        fig2_gs = gridspec.GridSpec(ncols=1, nrows=2, figure=fig2)[m
+[31m-[m
+[31m-        fig2_ax1 = fig2.add_subplot(fig2_gs[0,0],title='X Measurement Innovation')[m
+[31m-        fig2_ax2 = fig2.add_subplot(fig2_gs[1,0],title='Y Measurement Innovation')[m
+[31m-        fig2_ax1.grid(True)[m
+[31m-        fig2_ax2.grid(True)[m
+[31m-        fig2_ax2.set_xlabel('Time (sec)')[m
+[31m-[m
+[31m-        time_plot = [t for t,v in zip(time_history, measurement_innovation_history) if v is not None ][m
+[31m-        fig2_ax1.plot(time_plot, [v[0] for v in measurement_innovation_history if v is not None], 'b')[m
+[31m-        fig2_ax2.plot(time_plot, [v[1] for v in measurement_innovation_history if v is not None], 'b')[m
+[31m-        time_plot = [t for t,v in zip(time_history, measurement_innovation_covariance_history) if v is not None ][m
+[31m-        fig2_ax1.plot(time_plot, [1.0*np.sqrt(v[0][0]) for v in measurement_innovation_covariance_history if v is not None], 'g--')[m
+[31m-        fig2_ax1.plot(time_plot, [-1.0*np.sqrt(v[0][0]) for v in measurement_innovation_covariance_history if v is not None], 'g--')[m
+[31m-        fig2_ax2.plot(time_plot, [1.0*np.sqrt(v[1][1]) for v in measurement_innovation_covariance_history if v is not None], 'g--')[m
+[31m-        fig2_ax2.plot(time_plot, [-1.0*np.sqrt(v[1][1]) for v in measurement_innovation_covariance_history if v is not None], 'g--')[m
+[31m-[m
+[31m-    if draw_animation is True:[m
+[31m-        [m
+[31m-        # Plot Animation[m
+[31m-        fig2 = plt.figure(constrained_layout=True)[m
+[31m-        fig_ax2 = fig2.add_subplot(111,title='2D Position', aspect='equal')#, autoscale_on=True, xlim=(0, 1000), ylim=(0, 1000))[m
+[31m-        fig_ax2.set_xlabel('X Position (m)')[m
+[31m-        fig_ax2.set_ylabel('Y Position (m)')[m
+[31m-        fig_ax2.grid(True)[m
+[31m-        vehicle_plot, = fig_ax2.plot([], [], 'bo-', lw=1)[m
+[31m-        meas_plot, = fig_ax2.plot([],[],'+k')[m
+[31m-        estimate_plot, = fig_ax2.plot([],[], 'ro-')[m
+[31m-        estimate_var_plot, = fig_ax2.plot([],[], 'g-')[m
+[31m-[m
+[31m-        def update_plot(i):[m
+[31m-            # Plot Vehicle[m
+[31m-            # Matplotlib Line2D.set_data() requires x and y sequences,[m
+[31m-            # even when plotting a single point.[m
+[31m-            vehicle_plot.set_data([vehicle_position_history[i][0]],[m
+[31m-                                  [vehicle_position_history[i][1]])[m
+[31m-            [m
+[31m-            # Plot Measurements[m
+[31m-            x_data = [meas[0] for meas in measurement_history[1:i] if meas is not None][m
+[31m-            y_data = [meas[1] for meas in measurement_history[1:i] if meas is not None][m
+[31m-            meas_plot.set_data(x_data,y_data)[m
+[31m-[m
+[31m-            # Plot Estimates[m
+[31m-            if estimated_state_history[i] is not None:[m
+[31m-                est_xpos = estimated_state_history[i][0][m
+[31m-                est_ypos = estimated_state_history[i][1][m
+[31m-                estimate_plot.set_data([est_xpos], [est_ypos])[m
+[31m-                if estimated_covariance_history[i] is not None:[m
+[31m-                    cov = estimated_covariance_history[i][m
+[31m-                    cov_mat = np.array([[cov[0][0],cov[0][1]],[cov[1][0],cov[1][1]]])[m
+[31m-                    U, S, V = np.linalg.svd(cov_mat)[m
+[31m-                    theta = np.linspace(0,2*np.pi, 100)[m
+[31m-                    theta_mat = np.array([np.cos(theta),np.sin(theta)])[m
+[31m-                    D = np.matmul(np.matmul(U,np.diag(3.0*np.sqrt(S))),theta_mat)[m
+[31m-                    estimate_var_plot.set_data([x+est_xpos for x in D[0]], [y+est_ypos for y in D[1]])[m
+[31m-[m
+[31m-            fig_ax2.relim()[m
+[31m-            fig_ax2.autoscale_view()[m
+[31m-[m
+[31m-            return vehicle_plot, meas_plot, estimate_plot, estimate_var_plot[m
+[31m-[m
+[31m-        # # Create the Animation[m
+[31m-        plot_animation = animation.FuncAnimation(fig2, update_plot, frames=range(0,num_steps,50),interval=1, repeat=False, blit=False)[m
+[31m-[m
+[31m-[m
+[31m-    # Show Animation[m
+[31m-    plt.show()[m
+[31m-[m
+[31m-    return (pos_mse, vel_mse)[m
+[1mdiff --git a/LinearKalmanFilter_Implementation/kfsims/vehiclemodel2d.py b/LinearKalmanFilter_Implementation/kfsims/vehiclemodel2d.py[m
+[1mdeleted file mode 100644[m
+[1mindex 7522ee7..0000000[m
+[1m--- a/LinearKalmanFilter_Implementation/kfsims/vehiclemodel2d.py[m
+[1m+++ /dev/null[m
+[36m@@ -1,37 +0,0 @@[m
+[31m-import numpy as np[m
+[31m-[m
+[31m-class VehicleModel2D():[m
+[31m-[m
+[31m-    def __init__(self):[m
+[31m-        self.x_pos = 0[m
+[31m-        self.y_pos = 0[m
+[31m-        self.vel = 0[m
+[31m-        self.yaw = 0[m
+[31m-[m
+[31m-    def initialise(self, vehicle_params):[m
+[31m-        self.x_pos = vehicle_params['initial_x_position'][m
+[31m-        self.y_pos = vehicle_params['initial_y_position'][m
+[31m-        self.yaw = vehicle_params['initial_heading'][m
+[31m-        self.vel = vehicle_params['initial_speed'][m
+[31m-[m
+[31m-    def update_vehicle(self, time_step, accel, yaw_rate):[m
+[31m-        self.vel = self.vel + accel * time_step[m
+[31m-        self.yaw = self.yaw + yaw_rate * time_step[m
+[31m-        self.x_pos = self.x_pos + self.vel * np.cos(self.yaw) * time_step[m
+[31m-        self.y_pos = self.y_pos + self.vel * np.sin(self.yaw) * time_step[m
+[31m-        return[m
+[31m-[m
+[31m-    def get_position(self):[m
+[31m-        return [self.x_pos, self.y_pos][m
+[31m-[m
+[31m-    def get_velocity(self):[m
+[31m-        x_vel = self.vel * np.cos(self.yaw)[m
+[31m-        y_vel = self.vel * np.sin(self.yaw)[m
+[31m-        return [x_vel, y_vel][m
+[31m-[m
+[31m-    def get_speed(self):[m
+[31m-        return self.vel[m
+[31m-[m
+[31m-    def get_heading(self):[m
+[31m-        return self.yaw[m
+[31m-[m
+[1mdiff --git a/README.md b/README.md[m
+[1mindex a0f8606..3309a9c 100644[m
+[1m--- a/README.md[m
+[1m+++ b/README.md[m
+[36m@@ -1,302 +1,117 @@[m
+ # Data Fusion and Linear Kalman Filter[m
+ [m
+[31m-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)[m
+[31m-[![Python](https://img.shields.io/badge/Python-3.8%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)[m
+[31m-[![Jupyter](https://img.shields.io/badge/Jupyter-notebooks-F37626?logo=jupyter&logoColor=white)](https://jupyter.org/)[m
+[31m-[![NumPy](https://img.shields.io/badge/NumPy-supported-013243?logo=numpy&logoColor=white)](https://numpy.org/)[m
+[31m-[![SciPy](https://img.shields.io/badge/SciPy-supported-8CAAE6?logo=scipy&logoColor=white)](https://scipy.org/)[m
+[31m-[![GitHub last commit](https://img.shields.io/github/last-commit/hunkarsuci/Data-Fusion-and-Linear-Kalman-Filter)](https://github.com/hunkarsuci/Data-Fusion-and-Linear-Kalman-Filter/commits/master)[m
+[32m+[m[32mExamples and Python implementations for dynamic-system simulation, data fusion, least-squares estimation, and linear Kalman filtering.[m
+ [m
+[31m-Examples and implementations for dynamic-system modeling, state-space simulation, data fusion, and linear state estimation.[m
+[32m+[m[32m## Quick start[m
+ [m
+[31m-## Contents[m
+[31m-[m
+[31m-| Resource | Description |[m
+[31m-| --- | --- |[m
+[31m-| [`ContinousTimeSimulation.ipynb`](ContinousTimeSimulation.ipynb) | Forward Euler simulation of a continuous-time mass-spring-damper system, compared with its exact response. |[m
+[31m-| [`DiscreteTimeSimulation.ipynb`](DiscreteTimeSimulation.ipynb) | Exact discretization and simulation of the same mass-spring-damper model. |[m
+[31m-| [`LeastSquareEstimation.ipynb`](LeastSquareEstimation.ipynb) | Ordinary and weighted least-squares estimation using measurement covariance. |[m
+[31m-| [`LinearKalmanFilter_Implementation/`](LinearKalmanFilter_Implementation/) | Linear Kalman filter for two-dimensional vehicle tracking. |[m
+[31m-[m
+[31m-## Topics[m
+[31m-[m
+[31m-- Continuous-time and discrete-time state-space models[m
+[31m-- Numerical simulation and exact discretization[m
+[31m-- Least-squares and weighted least-squares estimation[m
+[31m-- Linear Kalman filtering and data fusion[m
+[31m-- State prediction and covariance propagation[m
+[31m-- Measurement updates and uncertainty weighting[m
+[31m-[m
+[31m-## Linear Kalman Filter state estimation[m
+[31m-[m
+[31m-The implementation estimates a vehicle's two-dimensional position and velocity from noisy position measurements. It uses a linear dynamic model and a linear measurement model. At every time step, the filter predicts the state and its uncertainty, then corrects both using the new measurement.[m
+[31m-[m
+[31m-### 1. Dynamic state model[m
+[31m-[m
+[31m-The state vector is[m
+[31m-[m
+[31m-```math[m
+[31m-\mathbf{x}_k =[m
+[31m-\begin{bmatrix}[m
+[31m-p_{x,k} \\[m
+[31m-p_{y,k} \\[m
+[31m-v_{x,k} \\[m
+[31m-v_{y,k}[m
+[31m-\end{bmatrix},[m
+[31m-```[m
+[31m-[m
+[31m-where `p_x` and `p_y` are positions and `v_x` and `v_y` are velocities. The stochastic discrete-time model is[m
+[31m-[m
+[31m-```math[m
+[31m-\mathbf{x}_k = \mathbf{F}_k\mathbf{x}_{k-1} + \mathbf{w}_k,[m
+[31m-\qquad[m
+[31m-\mathbf{w}_k \sim \mathcal{N}(\mathbf{0},\mathbf{Q}_k).[m
+[31m-```[m
+[31m-[m
+[31m-For a constant-velocity model with sampling interval `dt`,[m
+[31m-[m
+[31m-```math[m
+[31m-\mathbf{F}_k =[m
+[31m-\begin{bmatrix}[m
+[31m-1 & 0 & \Delta t & 0 \\[m
+[31m-0 & 1 & 0 & \Delta t \\[m
+[31m-0 & 0 & 1 & 0 \\[m
+[31m-0 & 0 & 0 & 1[m
+[31m-\end{bmatrix}.[m
+[31m-```[m
+[31m-[m
+[31m-The process noise `w_k` represents acceleration and other motion that the constant-velocity model does not predict. Its covariance is `Q_k`.[m
+[31m-[m
+[31m-For independent continuous white acceleration in the `x` and `y` directions, with spectral density `q_a`, the standard discrete process-noise covariance is[m
+[31m-[m
+[31m-```math[m
+[31m-\mathbf{Q}_k = q_a[m
+[31m-\begin{bmatrix}[m
+[31m-\frac{\Delta t^3}{3} & 0 & \frac{\Delta t^2}{2} & 0 \\[m
+[31m-0 & \frac{\Delta t^3}{3} & 0 & \frac{\Delta t^2}{2} \\[m
+[31m-\frac{\Delta t^2}{2} & 0 & \Delta t & 0 \\[m
+[31m-0 & \frac{\Delta t^2}{2} & 0 & \Delta t[m
+[31m-\end{bmatrix}.[m
+[31m-```[m
+[31m-[m
+[31m-The current Python implementation uses a simplified diagonal tuning matrix:[m
+[31m-[m
+[31m-```math[m
+[31m-\mathbf{Q}_{\mathrm{code}} = \sigma_a^2[m
+[31m-\mathrm{diag}\!\left([m
+[31m-\frac{\Delta t^2}{2},[m
+[31m-\frac{\Delta t^2}{2},[m
+[31m-\Delta t,[m
+[31m-\Delta t[m
+[31m-\right).[m
+[31m-```[m
+[31m-[m
+[31m-Here, `accel_std` supplies the tuning value `sigma_a`. Increasing it makes the filter less confident in constant-velocity motion and more responsive to maneuvers.[m
+[31m-[m
+[31m-### 2. Measurement model[m
+[31m-[m
+[31m-The sensor measures position but not velocity:[m
+[31m-[m
+[31m-```math[m
+[31m-\mathbf{z}_k = \mathbf{H}_k\mathbf{x}_k + \mathbf{v}_k,[m
+[31m-\qquad[m
+[31m-\mathbf{v}_k \sim \mathcal{N}(\mathbf{0},\mathbf{R}_k),[m
+[31m-```[m
+[31m-[m
+[31m-with[m
+[31m-[m
+[31m-```math[m
+[31m-\mathbf{z}_k =[m
+[31m-\begin{bmatrix}[m
+[31m-z_{x,k} \\[m
+[31m-z_{y,k}[m
+[31m-\end{bmatrix},[m
+[31m-\qquad[m
+[31m-\mathbf{H}_k =[m
+[31m-\begin{bmatrix}[m
+[31m-1 & 0 & 0 & 0 \\[m
+[31m-0 & 1 & 0 & 0[m
+[31m-\end{bmatrix}.[m
+[31m-```[m
+[31m-[m
+[31m-For independent measurement errors with standard deviation `sigma_m`,[m
+[31m-[m
+[31m-```math[m
+[31m-\mathbf{R}_k =[m
+[31m-\begin{bmatrix}[m
+[31m-\sigma_m^2 & 0 \\[m
+[31m-0 & \sigma_m^2[m
+[31m-\end{bmatrix}.[m
+[31m-```[m
+[31m-[m
+[31m-The code parameter `meas_std` supplies `sigma_m`. A larger `R_k` gives the sensor less influence; a smaller `R_k` gives it more influence.[m
+[31m-[m
+[31m-### 3. Prior and posterior estimates[m
+[31m-[m
+[31m-The notation distinguishes the estimate before and after the measurement at time `k`:[m
+[31m-[m
+[31m-```math[m
+[31m-\hat{\mathbf{x}}_{k\mid k-1}[m
+[31m-= \mathbb{E}[\mathbf{x}_k\mid\mathbf{z}_{1:k-1}][m
+[31m-```[m
+[31m-[m
+[31m-is the prior (predicted) estimate, while[m
+[32m+[m[32mInstall the dependencies:[m
+ [m
+[31m-```math[m
+[31m-\hat{\mathbf{x}}_{k\mid k}[m
+[31m-= \mathbb{E}[\mathbf{x}_k\mid\mathbf{z}_{1:k}][m
+[31m-```[m
+[31m-[m
+[31m-is the posterior (corrected) estimate. Their error covariances are[m
+[31m-[m
+[31m-```math[m
+[31m-\mathbf{P}_{k\mid j}[m
+[31m-= \mathbb{E}\!\left[[m
+[31m-(\mathbf{x}_k-\hat{\mathbf{x}}_{k\mid j})[m
+[31m-(\mathbf{x}_k-\hat{\mathbf{x}}_{k\mid j})^T[m
+[31m-\mid\mathbf{z}_{1:j}[m
+[31m-\right],[m
+[31m-\qquad j\in\{k-1,k\}.[m
+[31m-```[m
+[31m-[m
+[31m-The diagonal entries of `P` are the state-error variances. Its off-diagonal entries represent correlations between errors in position and velocity.[m
+[31m-[m
+[31m-### 4. Prediction and covariance propagation[m
+[31m-[m
+[31m-The prediction step propagates the previous posterior estimate through the dynamic model:[m
+[31m-[m
+[31m-```math[m
+[31m-\hat{\mathbf{x}}_{k\mid k-1}[m
+[31m-= \mathbf{F}_k\hat{\mathbf{x}}_{k-1\mid k-1}.[m
+[32m+[m[32m```powershell[m
+[32m+[m[32mpython -m pip install numpy scipy matplotlib jupyter[m
+ ```[m
+ [m
+[31m-The prior covariance is propagated as[m
+[32m+[m[32mRun the notebooks with `jupyter notebook`, or run the completed pendulum filter from the repository root:[m
+ [m
+[31m-```math[m
+[31m-\mathbf{P}_{k\mid k-1}[m
+[31m-= \mathbf{F}_k\mathbf{P}_{k-1\mid k-1}\mathbf{F}_k^T[m
+[31m-+ \mathbf{Q}_k.[m
+[32m+[m[32m```powershell[m
+[32m+[m[32mpython LinearKalmanFilter_Implementation\LinearKF_Pendelum\assignment2_filter.py[m
+ ```[m
+ [m
+[31m-The first term transports the previous uncertainty through the dynamics. Adding `Q_k` accounts for new uncertainty caused by unmodelled motion.[m
+[31m-[m
+[31m-### 5. Measurement prediction and innovation[m
+[31m-[m
+[31m-The predicted measurement is[m
+[31m-[m
+[31m-```math[m
+[31m-\hat{\mathbf{z}}_k[m
+[31m-= \mathbf{H}_k\hat{\mathbf{x}}_{k\mid k-1}.[m
+[31m-```[m
+[32m+[m[32m## Contents[m
+ [m
+[31m-The innovation, or measurement residual, is[m
+[32m+[m[32m| Path | Purpose |[m
+[32m+[m[32m| --- | --- |[m
+[32m+[m[32m| [`ContinousTimeSimulation.ipynb`](ContinousTimeSimulation.ipynb) | Continuous-time mass-spring-damper simulation using forward Euler integration and comparison with the exact response. |[m
+[32m+[m[32m| [`DiscreteTimeSimulation.ipynb`](DiscreteTimeSimulation.ipynb) | Exact discretization and discrete-time simulation of the mass-spring-damper model. |[m
+[32m+[m[32m| [`LeastSquareEstimation.ipynb`](LeastSquareEstimation.ipynb) | Ordinary and weighted least-squares estimation with measurement uncertainty. |[m
+[32m+[m[32m| [`LinearKalmanFilter_Implementation/`](LinearKalmanFilter_Implementation/) | Python exercises for vehicle tracking and pendulum estimation. |[m
+ [m
+[31m-```math[m
+[31m-\mathbf{y}_k[m
+[31m-= \mathbf{z}_k-\hat{\mathbf{z}}_k[m
+[31m-= \mathbf{z}_k-\mathbf{H}_k\hat{\mathbf{x}}_{k\mid k-1}.[m
+[31m-```[m
+[32m+[m[32m## Assignment 1: two-dimensional vehicle tracking[m
+ [m
+[31m-Its covariance is[m
+[32m+[m[32mAssignment 1 estimates[m
+ [m
+[31m-```math[m
+[31m-\mathbf{S}_k[m
+[31m-= \mathbf{H}_k\mathbf{P}_{k\mid k-1}\mathbf{H}_k^T[m
+[31m-+ \mathbf{R}_k.[m
+[32m+[m[32m```text[m
+[32m+[m[32mx = [position_x, position_y, velocity_x, velocity_y]^T[m
+ ```[m
+ [m
+[31m-The implementation stores these quantities as `innovation` and `innovation_covariance`.[m
+[31m-[m
+[31m-### 6. Kalman gain and measurement update[m
+[32m+[m[32mfrom noisy two-dimensional position measurements using a constant-velocity model. The scripts are `assignment1_initial_conditions.py`, `assignment1_prediction.py`, `assignment1_update.py`, and the completed `assignment1_answer.py`.[m
+ [m
+[31m-The Kalman gain is[m
+[31m-[m
+[31m-```math[m
+[31m-\mathbf{K}_k[m
+[31m-= \mathbf{P}_{k\mid k-1}\mathbf{H}_k^T\mathbf{S}_k^{-1}.[m
+[31m-```[m
+[32m+[m[32mRun the completed example:[m
+ [m
+[31m-It weights the correction according to the uncertainty in the prediction and the measurement. The posterior state estimate is[m
+[31m-[m
+[31m-```math[m
+[31m-\hat{\mathbf{x}}_{k\mid k}[m
+[31m-= \hat{\mathbf{x}}_{k\mid k-1}+\mathbf{K}_k\mathbf{y}_k.[m
+[32m+[m[32m```powershell[m
+[32m+[m[32mcd LinearKalmanFilter_Implementation[m
+[32m+[m[32mpython assignment1_answer.py[m
+ ```[m
+ [m
+[31m-Although the sensor measures only position, position-velocity correlations in `P` allow the correction to update velocity as well.[m
+[32m+[m[32m## Assignment 2: pendulum estimation[m
+ [m
+[31m-The covariance update used by the implementation is[m
+[32m+[m[32mAssignment 2 compares a nonlinear pendulum simulation with a linearized Kalman filter. The state is[m
+ [m
+[31m-```math[m
+[31m-\mathbf{P}_{k\mid k}[m
+[31m-= (\mathbf{I}-\mathbf{K}_k\mathbf{H}_k)\mathbf{P}_{k\mid k-1}.[m
+[32m+[m[32m```text[m
+[32m+[m[32mx = [angle, angular_velocity]^T[m
+ ```[m
+ [m
+[31m-An algebraically equivalent and more numerically robust form is the Joseph update:[m
+[32m+[m[32mThe nonlinear model uses `angle_acceleration = -(g / length) * sin(angle)`. The linear filter uses[m
+ [m
+[31m-```math[m
+[31m-\mathbf{P}_{k\mid k}[m
+[31m-= (\mathbf{I}-\mathbf{K}_k\mathbf{H}_k)[m
+[31m-\mathbf{P}_{k\mid k-1}[m
+[31m-(\mathbf{I}-\mathbf{K}_k\mathbf{H}_k)^T[m
+[31m-+ \mathbf{K}_k\mathbf{R}_k\mathbf{K}_k^T.[m
+[32m+[m[32m```text[m
+[32m+[m[32mA = [[0, 1], [-g / length, 0]][m
+[32m+[m[32mF = expm(A * time_step)[m
+[32m+[m[32mH = [[1, 0]][m
+ ```[m
+ [m
+[31m-The complete cycle is therefore: predict the state, propagate its covariance, predict the measurement, calculate the innovation, calculate the Kalman gain, and correct the state and covariance.[m
+[32m+[m[32mOnly the angle is measured. The simulation reports innovation standard deviation, position mean-squared error, and velocity mean-squared error, and can display analysis plots and an animation.[m
+ [m
+[31m-## Getting started[m
+[32m+[m[32mImportant Assignment 2 files:[m
+ [m
+[31m-### Requirements[m
+[32m+[m[32m- `assignment2_filter.py`: completed filter and main entry point.[m
+[32m+[m[32m- `assignment2_filter_answer.py`: reference filter.[m
+[32m+[m[32m- `assignment2_sims.py`: standalone nonlinear-versus-linear simulation.[m
+[32m+[m[32m- `assignment2_answer.py`: reference simulation entry point.[m
+[32m+[m[32m- `kfpendulum.py`: simulation runner, plots, and animation.[m
+[32m+[m[32m- `pendulum.py`: nonlinear pendulum model.[m
+[32m+[m[32m- `kfsims/kfmodels.py`: Kalman-filter base class.[m
+ [m
+[31m-- Python 3.8 or later[m
+[31m-- Jupyter Notebook or JupyterLab, or VS Code with the Jupyter extension[m
+[32m+[m[32mSet `draw_plots` and `draw_animation` to `False` in `sim_options` when graphical output is not needed.[m
+ [m
+[31m-Install the dependencies with:[m
+[32m+[m[32m## Kalman filter cycle[m
+ [m
+[31m-```bash[m
+[31m-python -m pip install numpy scipy matplotlib jupyter[m
+[31m-```[m
+[31m-[m
+[31m-### Run the notebooks[m
+[32m+[m[32mBoth assignments use the standard recursion:[m
+ [m
+[31m-From the repository root:[m
+[31m-[m
+[31m-```bash[m
+[31m-jupyter notebook[m
+[31m-```[m
+[31m-[m
+[31m-Then open any notebook listed in the contents table.[m
+[31m-[m
+[31m-### Run the Kalman filter implementation[m
+[31m-[m
+[31m-```bash[m
+[31m-cd LinearKalmanFilter_Implementation[m
+[31m-python assignment1_answer.py[m
+[32m+[m[32m```text[m
+[32m+[m[32mx_predict = F x_previous[m
+[32m+[m[32mP_predict = F P_previous F^T + Q[m
+[32m+[m[32my = z - H x_predict[m
+[32m+[m[32mS = H P_predict H^T + R[m
+[32m+[m[32mK = P_predict H^T S^-1[m
+[32m+[m[32mx_update = x_predict + K y[m
+[32m+[m[32mP_update = (I - K H) P_predict[m
+ ```[m
+ [m
+[31m-The reusable components are in `LinearKalmanFilter_Implementation/kfsims/`.[m
+[32m+[m[32m`Q` controls confidence in the motion model; `R` controls confidence in the measurement. Increasing `Q` makes the filter respond faster to model mismatch, while increasing `R` makes it rely more on prediction.[m
+ [m
+[31m-## Project structure[m
+[32m+[m[32m## Repository structure[m
+ [m
+ ```text[m
+ .[m
+[31m-|-- ContinousTimeSimulation.ipynb[m
+[31m-|-- DiscreteTimeSimulation.ipynb[m
+[31m-|-- LeastSquareEstimation.ipynb[m
+[31m-|-- LinearKalmanFilter_Implementation/[m
+[31m-|   |-- README.md[m
+[31m-|   |-- assignment1_*.py[m
+[31m-|   `-- kfsims/[m
+[31m-|       |-- __init__.py[m
+[31m-|       |-- kfmodels.py[m
+[31m-|       |-- kftracker2d.py[m
+[31m-|       |-- tracker2d.py[m
+[31m-|       `-- vehiclemodel2d.py[m
+[31m-|-- .gitignore[m
+[31m-|-- LICENSE[m
+[31m-`-- README.md[m
+[31m-```[m
+[31m-[m
+[31m-## License[m
+[31m-[m
+[31m-This project is distributed under the MIT License. See [`LICENSE`](LICENSE) for details.[m
+[32m+[m[32m├── ContinousTimeSimulation.ipynb[m
+[32m+[m[32m├── DiscreteTimeSimulation.ipynb[m
+[32m+[m[32m├── LeastSquareEstimation.ipynb[m
+[32m+[m[32m├── LinearKalmanFilter_Implementation[m
+[32m+[m[32m│   ├── README.md[m
+[32m+[m[32m│   ├── assignment1_*.py[m
+[32m+[m[32m│   └── LinearKF_Pendelum[m
+[32m+[m[32m│       ├── assignment2_filter.py[m
+[32m+[m[32m│       ├── assignment2_filter_answer.py[m
+[32m+[m[32m│       ├── assignment2_sims.py[m
+[32m+[m[32m│       ├── kfpendulum.py[m
+[32m+[m[32m│       ├── pendulum.py[m
+[32m+[m[32m│       └── kfsims[m
+[32m+[m[32m│           └── kfmodels.py[m
+[32m+[m[32m├── LICENSE[m
+[32m+[m[32m└── README.md[m
+[32m+[m[32m```[m
+[32m+[m
+[32m+[m[32m## Troubleshooting[m
+[32m+[m
+[32m+[m[32mRun Assignment 2 from the repository root using the command above. The pendulum runner is in `kfpendulum.py`, and the physical model is in `pendulum.py`; older references to `kfsims.pendulum` are no longer valid.[m
+[32m+[m
+[32m+[m[32mSee [`LICENSE`](LICENSE) for licensing information.[m

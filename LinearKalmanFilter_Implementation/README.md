@@ -1,129 +1,89 @@
 # Linear Kalman Filter Implementation
 
-This directory implements a linear Kalman filter for estimating two-dimensional position and velocity from noisy position measurements.
+This directory contains the Python exercises for linear Kalman filtering.
 
-## Models
+## Assignment 1: vehicle tracking
 
-The state and measurement equations are
+Assignment 1 estimates two-dimensional position and velocity from noisy position measurements. The state is
 
-```math
-\mathbf{x}_k=\mathbf{F}_k\mathbf{x}_{k-1}+\mathbf{w}_k,
-\qquad
-\mathbf{z}_k=\mathbf{H}_k\mathbf{x}_k+\mathbf{v}_k,
+```text
+x = [position_x, position_y, velocity_x, velocity_y]^T
 ```
 
-where
+Files:
 
-```math
-\mathbf{x}_k=
-\begin{bmatrix}
-p_{x,k} \\
-p_{y,k} \\
-v_{x,k} \\
-v_{y,k}
-\end{bmatrix},
-\quad
-\mathbf{F}_k=
-\begin{bmatrix}
-1&0&\Delta t&0 \\
-0&1&0&\Delta t \\
-0&0&1&0 \\
-0&0&0&1
-\end{bmatrix},
-\quad
-\mathbf{H}_k=
-\begin{bmatrix}
-1&0&0&0 \\
-0&1&0&0
-\end{bmatrix}.
-```
+- `assignment1_initial_conditions.py` — initialization exercise.
+- `assignment1_prediction.py` — state and covariance prediction.
+- `assignment1_update.py` — measurement update.
+- `assignment1_answer.py` — completed example.
+- `kfsims/kfmodels.py` — filter state and covariance accessors.
+- `kfsims/kftracker2d.py` — two-dimensional Kalman filter model.
+- `kfsims/tracker2d.py` — simulation, plotting, and animation.
+- `kfsims/vehiclemodel2d.py` — simulated vehicle motion model.
 
-The noises are modeled as
+Run the completed example:
 
-```math
-\mathbf{w}_k\sim\mathcal{N}(\mathbf{0},\mathbf{Q}_k),
-\qquad
-\mathbf{v}_k\sim\mathcal{N}(\mathbf{0},\mathbf{R}_k).
-```
-
-The code uses
-
-```math
-\mathbf{Q}_{\mathrm{code}}=\sigma_a^2
-\mathrm{diag}\!\left(
-\frac{\Delta t^2}{2},
-\frac{\Delta t^2}{2},
-\Delta t,
-\Delta t
-\right),
-\qquad
-\mathbf{R}_k=
-\begin{bmatrix}
-\sigma_m^2&0 \\
-0&\sigma_m^2
-\end{bmatrix}.
-```
-
-`accel_std` supplies `sigma_a`, and `meas_std` supplies `sigma_m`.
-
-## Kalman Filter recursion
-
-### Prediction
-
-```math
-\hat{\mathbf{x}}_{k\mid k-1}
-=\mathbf{F}_k\hat{\mathbf{x}}_{k-1\mid k-1}
-```
-
-```math
-\mathbf{P}_{k\mid k-1}
-=\mathbf{F}_k\mathbf{P}_{k-1\mid k-1}\mathbf{F}_k^T+\mathbf{Q}_k
-```
-
-### Measurement prediction and innovation
-
-```math
-\hat{\mathbf{z}}_k=\mathbf{H}_k\hat{\mathbf{x}}_{k\mid k-1}
-```
-
-```math
-\mathbf{y}_k=\mathbf{z}_k-\hat{\mathbf{z}}_k
-```
-
-```math
-\mathbf{S}_k
-=\mathbf{H}_k\mathbf{P}_{k\mid k-1}\mathbf{H}_k^T+\mathbf{R}_k
-```
-
-### Measurement update
-
-```math
-\mathbf{K}_k
-=\mathbf{P}_{k\mid k-1}\mathbf{H}_k^T\mathbf{S}_k^{-1}
-```
-
-```math
-\hat{\mathbf{x}}_{k\mid k}
-=\hat{\mathbf{x}}_{k\mid k-1}+\mathbf{K}_k\mathbf{y}_k
-```
-
-```math
-\mathbf{P}_{k\mid k}
-=(\mathbf{I}-\mathbf{K}_k\mathbf{H}_k)\mathbf{P}_{k\mid k-1}
-```
-
-The implementation stores `y_k` as `innovation` and `S_k` as `innovation_covariance`. See the repository's [main README](../README.md) for the full interpretation of each equation and the standard continuous white-acceleration covariance.
-
-## Implementation files
-
-- `kfsims/kfmodels.py`: state, covariance, innovation, and innovation-covariance accessors.
-- `kfsims/kftracker2d.py`: complete two-dimensional linear Kalman filter.
-- `kfsims/tracker2d.py`: simulation and plotting utilities.
-- `kfsims/vehiclemodel2d.py`: simulated vehicle motion model.
-- `assignment1_*.py`: initialization, prediction, and measurement-update examples.
-
-Run an example from this directory:
-
-```bash
+```powershell
+cd LinearKalmanFilter_Implementation
 python assignment1_answer.py
 ```
+
+## Assignment 2: pendulum estimation
+
+Assignment 2 simulates a nonlinear pendulum and estimates its angle and angular velocity with a linearized Kalman filter. The state is
+
+```text
+x = [angle, angular_velocity]^T
+```
+
+The linearized model is
+
+```text
+A = [[0, 1], [-9.81 / length, 0]]
+F = expm(A * time_step)
+H = [[1, 0]]
+```
+
+Only the pendulum angle is measured. The simulation reports innovation standard deviation, position mean-squared error, and velocity mean-squared error.
+
+Files:
+
+- `LinearKF_Pendelum/assignment2_filter.py` — completed filter and main entry point.
+- `LinearKF_Pendelum/assignment2_filter_answer.py` — reference filter.
+- `LinearKF_Pendelum/assignment2_sims.py` — standalone nonlinear/linear simulation.
+- `LinearKF_Pendelum/assignment2_answer.py` — reference simulation entry point.
+- `LinearKF_Pendelum/kfpendulum.py` — simulation loop, statistics, plots, and animation.
+- `LinearKF_Pendelum/pendulum.py` — nonlinear pendulum model.
+- `LinearKF_Pendelum/kfsims/kfmodels.py` — Kalman-filter base class.
+
+Run Assignment 2 from the repository root:
+
+```powershell
+python LinearKalmanFilter_Implementation\LinearKF_Pendelum\assignment2_filter.py
+```
+
+Set `draw_plots` and `draw_animation` to `False` in `sim_options` when graphical output is not needed.
+
+## Kalman filter lifecycle
+
+Both assignments use the standard sequence:
+
+```text
+x_predict = F x_previous
+P_predict = F P_previous F^T + Q
+y = z - H x_predict
+S = H P_predict H^T + R
+K = P_predict H^T S^-1
+x_update = x_predict + K y
+P_update = (I - K H) P_predict
+```
+
+`Q` controls confidence in the motion model. `R` controls confidence in the measurement. Increasing `Q` makes the filter respond faster to model mismatch; increasing `R` makes it rely more on prediction.
+
+## Dependencies
+
+```powershell
+python -m pip install numpy scipy matplotlib
+```
+
+See the [main README](../README.md) for the complete project overview and notebook instructions.

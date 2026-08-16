@@ -14,7 +14,7 @@ sim_options = {'time_step': 0.01,
                'draw_plots': True,
                'draw_animation': True} 
 
-kf_options = {'accel_std':0.5, # Q Matrix Param
+kf_options = {'accel_std':0.0, # Q Matrix Param
               'meas_std':10, # R Matrix  
               'init_on_measurement':True}
 
