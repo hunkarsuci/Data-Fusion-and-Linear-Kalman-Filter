@@ -20,7 +20,7 @@ class KalmanFilterModel(KalmanFilterBase):
     def initialise(self, time_step):
 
         # Set Initial State and Covariance (COMMENT OUT FOR DELAYED)
-        init_pos_std = 0
+        init_pos_std = 100
         init_vel_std = 10
         self.state = np.array([0,0,0,0])
         self.covariance = np.diag(np.array([init_pos_std*init_pos_std,

@@ -5,7 +5,7 @@ from kfsims.kfmodels import KalmanFilterBase
 # Simulation Options
 sim_options = {'time_step': 0.01,
                'end_time': 120,
-               'measurement_rate': 1,
+               'measurement_rate': 0.1,
                'measurement_noise_std': 10,
                'motion_type': 'straight',
                'start_at_origin': True,
@@ -21,7 +21,7 @@ class KalmanFilterModel(KalmanFilterBase):
 
         # Set Initial State and Covariance
         init_pos_std = 0
-        init_vel_std = 0
+        init_vel_std = 10
         self.state = np.array([0,0,0,0])
         self.covariance = np.diag(np.array([init_pos_std*init_pos_std,
                                             init_pos_std*init_pos_std,
