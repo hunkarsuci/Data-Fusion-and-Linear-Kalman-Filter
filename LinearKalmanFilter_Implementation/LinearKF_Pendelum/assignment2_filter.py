@@ -1,6 +1,9 @@
 import numpy as np
 from scipy.linalg import expm
-from kfpendulum import run_sim
+try:
+    from .kfpendulum import run_sim
+except ImportError:
+    from kfpendulum import run_sim
 from kfsims.kfmodels import KalmanFilterBase
 
 # Simulation Options
@@ -93,4 +96,5 @@ class KalmanFilterModel(KalmanFilterBase):
 
 
 # Run the Simulation
-run_sim(KalmanFilterModel, sim_options, kf_options)
+if __name__ == '__main__':
+    run_sim(KalmanFilterModel, sim_options, kf_options)

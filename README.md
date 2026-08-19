@@ -1,5 +1,6 @@
 # Data Fusion and Linear Kalman Filter
 
+[![CI](https://github.com/hunkarsuci/Data-Fusion-and-Linear-Kalman-Filter/actions/workflows/ci.yml/badge.svg)](https://github.com/hunkarsuci/Data-Fusion-and-Linear-Kalman-Filter/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python 3.8+](https://img.shields.io/badge/Python-3.8%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![Jupyter](https://img.shields.io/badge/Jupyter-Notebook-orange?logo=jupyter&logoColor=white)](https://jupyter.org/)

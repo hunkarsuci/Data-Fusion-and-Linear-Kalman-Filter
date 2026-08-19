@@ -61,4 +61,5 @@ class KalmanFilterModel(KalmanFilterBase):
 
 
 # Run the Simulation
-run_sim(KalmanFilterModel, sim_options, {})
+if __name__ == '__main__':
+    run_sim(KalmanFilterModel, sim_options, {})

@@ -19,4 +19,5 @@ kf_options = {'accel_std':0.0, # Q Matrix Param
               'init_on_measurement':True}
 
 # Run the Simulation
-run_sim(KalmanFilterModel, sim_options, kf_options)
+if __name__ == '__main__':
+    run_sim(KalmanFilterModel, sim_options, kf_options)
